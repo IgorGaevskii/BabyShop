@@ -1,0 +1,98 @@
+/*Start user authorization*/
+	#authorization {
+		text-align: center;
+	}
+
+	.header {
+		margin: 20px 0px 20px;
+		font-size: 20px;
+		color: #ffffff;
+	}
+
+	#authorization form {
+		border-top: 1px solid #666;
+	}
+
+	#authorization form label {
+		display: block;
+		margin: 18px 0px 10px;
+		font-size: 18px;
+		color: #fff;
+	}
+
+	.field-email, .field-password {
+		height: 25px;
+		border: none;
+		outline: none;
+		box-sizing: border-box;
+	}
+
+	.field-email {
+		width: 196px;
+		border-radius: 6px;
+		padding: 0px 10px 0px 10px;
+	}
+
+	.wrap-field-password {
+		width: 196px;
+		margin: 0 auto;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.field-password {
+		width: 166px;
+		border-radius: 6px 0 0 6px;
+		padding-left: 10px;
+	}
+
+	.eye-switch {
+		position: relative;
+		width: 30px;
+		background-color: #fff;
+		border: none;
+		border-radius: 0 6px 6px 0;
+		font-size: 16px;
+	}
+
+	.eye-switch:hover {
+		cursor: pointer;
+	}
+
+	.eye-switch img {
+		position: absolute;
+		top: 50%; left: 50%;
+		transform: translate(-50%, -50%);
+	}
+		
+	#but-authorization {
+		display: block;
+		margin: 25px auto 20px;
+		color: #000;
+		width: 100px; height: 25px;
+		border-radius: 6px;
+		cursor: pointer;
+		outline: none;
+	}
+
+	.forgot-password, .registration-user {
+		display: inline-block;
+		text-decoration: none;
+		font-size: 16px;
+		color: #fff;
+		cursor: pointer;
+	}
+
+	.forgot-password {
+		margin: 0px 5px 20px 0px;
+	}
+
+	.registration-user {
+		margin: 0px 0px 20px 5px;	
+	}
+
+	.forgot-password:hover, .registration-user:hover {
+		color: #fc7b00;
+		cursor: pointer;
+	}
+/*End user authorization*/

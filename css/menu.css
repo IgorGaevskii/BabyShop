@@ -1,0 +1,109 @@
+/*Start menu*/
+nav {
+	width: 244px;
+	background-color: #373737;
+	border: 3px solid brown;
+	border-radius: 6px;
+}
+
+nav p {
+	text-align: center;
+	color: #fff;
+	margin: 20px 0px 20px;
+	font-size: 20px;
+}
+
+.menu-item {
+	position: relative;
+	list-style: none;
+	font-size: 18px;
+	transition: 0.2s all;
+}
+
+.menu-item-wrap {
+	display: flex;
+	justify-content: space-between;
+	border-top: 1px solid #666;
+	padding: 0px 10px 0px;
+}
+
+.menu-item-category {
+	color: #fff;
+	line-height: 50px;
+	transition: 0.2s all;
+}
+
+.menu-item-category:hover {
+	color: #fc7b00;
+	padding-left: 5px;
+	cursor: pointer;
+}
+
+.menu-item-tick {
+	position: relative;
+	margin: auto 0px;
+}
+
+.tick__body {
+	width: 9px; height: 2px;
+}
+
+.menu-item-tick .tick__body::before {
+	width: 9px; height: 2px;
+	background-color: #fff;
+	top: -2.25px;
+	left: 0px;
+	transform: rotate(-135deg);
+}
+
+.menu-item-tick .tick__body::after {
+	width: 9px; height: 2px;
+	background-color: #fff;
+	top: 2.25px;
+	left: 0px;
+	transform: rotate(135deg);
+}
+
+/* Submenu: positioned to the right of the parent and hidden by default */
+.menu-item > .subitem{
+	position: absolute;
+	top: 0;
+	left: 100%;
+	min-width: 200px;
+	background-color: #373737;
+	border: 2px solid brown;
+	border-radius: 6px;
+	padding: 8px 6px;
+	box-sizing: border-box;
+	transform: translateX(-12px);
+	opacity: 0;
+	visibility: hidden;
+	transition: transform 0.28s ease, opacity 0.28s ease;
+	z-index: 20;
+	list-style: none;
+}
+
+/* Reveal and slide in on hover */
+.menu-item:hover > .subitem,
+.menu-item .menu-item-wrap:hover + .subitem{
+	transform: translateX(0);
+	opacity: 1;
+	visibility: visible;
+}
+
+.menu-item > .subitem > li,
+.menu-item > .subitem > .subitem-link{
+	display: block;
+	color: #fff;
+	padding: 6px 10px;
+	cursor: pointer;
+	transition: 0.2s all;
+	white-space: nowrap;
+}
+
+.menu-item > .subitem > li:hover,
+.menu-item > .subitem > .subitem-link:hover{
+	color: #fc7b00;
+	margin-left: 5px;
+}
+/*End menu*/

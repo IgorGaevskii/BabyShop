@@ -1,0 +1,62 @@
+.content {
+	width: 960px; /*ширина блока*/
+	box-sizing: border-box;
+	background-color: #fff;
+	border: 3px solid brown;
+	border-radius: 6px;
+}
+
+.header-box {
+	display: flex;
+	height: 80px;
+	padding: 0px 30px;
+	justify-content: space-between;
+}
+
+.header-name {
+	line-height: 80px;
+	font-size: 24px;
+}
+
+.header-cross {
+	position: relative;
+	width: 20px; height: 20px;
+	top: 50%;
+	transform: translateY(-50%);
+	cursor: pointer;
+}
+
+.header-cross:hover {
+	cursor: pointer;
+}
+
+.cross {
+	position: relative;
+	width: 2px; height: 20px;
+	background-color: transparent;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.cross::before, .advert_cross::before {
+	content: '';
+	position: absolute;
+	width: 2px; height: 20px;
+	background-color: brown;
+	top: 0px;
+	left: 0px;
+	border-radius: 1px;
+	transform: rotate(-45deg);
+}
+
+.cross::after, .advert_cross::after {
+	content: '';
+	position: absolute;
+	width: 2px; height: 20px;
+	background-color: brown;
+	top: 0px;
+	left: 0px;
+	border-radius: 1px;
+	transform: rotate(45deg);
+}

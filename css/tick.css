@@ -1,0 +1,17 @@
+.tick {
+	width: 16px; height: 16px;
+}
+
+.tick__body {
+	position: absolute;
+	background-color: transparent;
+	left: 50%; top: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.tick__body::before,
+.tick__body::after {
+	content: '';
+	position: absolute;
+	border-radius: 1px;
+}
