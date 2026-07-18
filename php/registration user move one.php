@@ -76,7 +76,7 @@
 
 			$to      = "".$email."";
 			$subject = "Підтвердження пошти на сайті ".$address_site;
-			$textLetter = 'Привіт! <br/> <br/> Сьогодні '.date("d.m.Y", time()).', якимсь користувачем була зроблена реєстрація на сайті <a href="'.$address_site.'">'.$_SERVER['HTTP_HOST'].'</a> використовуючи Ваш email. Якщо це були Ви, то, будь ласка, підтвердьте адресу вашої електронної пошти, перейшовши за цим посиланням: <a href="'.$address_site.'/pages/move_two.php?token='.$keyEmail.'">'.$address_site.'/activation email</a> <br/> <br/> В іншому випадку, якщо це були не Ви, просто ігноруйте цей лист. <br/> <br/> <strong>Увага!</strong> Посилання дійсне 24 години. Після чого Ваш обліковий запис буде видалено з бази.';
+			$textLetter = 'Привіт! <br/> <br/> Сьогодні '.date("d.m.Y", time()).', якимсь користувачем була зроблена реєстрація на сайті <a href="'.$address_site.'">'.$_SERVER['HTTP_HOST'].'</a> використовуючи Ваш email. Якщо це були Ви, то, будь ласка, підтвердьте адресу вашої електронної пошти, перейшовши за цим посиланням: <a href="'.$address_site.'/pages/move_two.html?token='.$keyEmail.'">'.$address_site.'/activation email</a> <br/> <br/> В іншому випадку, якщо це були не Ви, просто ігноруйте цей лист. <br/> <br/> <strong>Увага!</strong> Посилання дійсне 24 години. Після чого Ваш обліковий запис буде видалено з бази.';
 			$headers  = "MIME-Version: 1.0\r\n";
 			$headers .= "Content-type: text/html; charset=UTF-8\r\n";
 			$headers .= "From: babystore@babystore.website\r\n";

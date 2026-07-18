@@ -18,6 +18,7 @@
 		<script type="module" src="js/review user.js" defer></script>
 		<script type="module" src="js/ask.js" defer></script>
 		<script type="module" src="js/user chat.js" defer></script>
+		<script type="module" src="js/favorites.js" defer></script>
 	</head>
 
   	<body>
@@ -25,11 +26,9 @@
 			include('slice pages/header.php');
 		?>
 		<main>
-			<div id="left">
-				<?php
-					include('slice pages/menu.php');
-				?>
-			</div>
+			<?php
+				include('slice pages/menu.php');
+			?>
 
 			<!--start modal window top card-->
 			<section class="content top-card main-content">
@@ -57,19 +56,17 @@
 					/* удаление выборки */
 					mysqli_free_result($response);
 					/* закрытие соединения */
-					mysqli_close($conn);
+					// mysqli_close($conn);
 				?>
 			</section>
 			<!--end modal window top card-->
 
 			<!--start modal window new advert-->
 			<section class="content new_advert hide">
-				<div class="header-box">
-					<p class="header-name">Нове оголошення</p>
-					<div class="header-cross" data-status-window="newAdvert">
-						<div class="cross"></div>
-					</div>
+				<div class="content-cross" data-status-window="newAdvert">
+					<div class="cross"></div>
 				</div>
+				<h2 class="content-header">Нове оголошення</h2>
 				<div class="wrapper_form">
 					<form name="new_advert">
 						<p class="addAdvert_name_field">Категорія товару</p>
@@ -158,18 +155,16 @@
 
 			<!--start modal window advert user-->
 			<section class="content user_advert hide">
-				<div class="header-box">
-					<p class="header-name">Мої оголошення</p>
-					<div class="header-cross">
-						<div class="cross"></div>
-					</div>
+				<div class="content-cross">
+					<div class="cross"></div>
 				</div>
+				<h2 class="content-header">Мої оголошення</h2>
 				<ul class="tabs">
 			      <li class="tabs-item active" data-item="0">Активні</li>
 			      <li class="tabs-item" data-item="1">Неактивні</li>
 				</ul>
 				<div class="content_tab">
-					<div class="hat_ads active_ads">
+					<div class="control-panel active_ads">
 						<input type="checkbox">
 						<button class="but_display_advert" data-action='deactivate' title="Деактивувати">
 							<img src="pictures/cross screen computer.png" alt="photo" width="30" height="30">
@@ -180,7 +175,7 @@
 					</div>
 				</div>
 				<div class="content_tab hide">
-					<div class="hat_ads inactive_ads">
+					<div class="control-panel inactive_ads">
 						<input type="checkbox">
 						<button class="but_display_advert" data-action='activate' title="Активувати">
 							<img src="pictures/tick screen computer.png" alt="photo" width="30" height="30">
@@ -201,18 +196,16 @@
 
 			<!--start modal window user trading-->
 			<section class="content user-trading hide">
-				<div class="header-box">
-					<p class="header-name">Моя торгівля</p>
-					<div class="header-cross">
-						<div class="cross"></div>
-					</div>
+				<div class="content-cross">
+					<div class="cross"></div>
 				</div>
+				<h2 class="content-header">Моя торгівля</h2>
 				<ul class="tabs">
 					<li class="tabs-item active" data-item="0">Продажи</li>
 					<li class="tabs-item" data-item="1">Покупки</li>
 			   </ul>
 				<div class="content_tab">
-					<div class="hat_ads my-sales">
+					<div class="control-panel my-sales">
 						<input type="checkbox">
 						<button class="but_delete_trading" data-action='removeSale' title="Видалити">
 							<img src="pictures/bin.png" alt="photo" width="25" height="25">
@@ -223,7 +216,7 @@
 					</ul>
 				</div>
 				<div class="content_tab hide">
-					<div class="hat_ads my-purchases">
+					<div class="control-panel my-purchases">
 						<input type="checkbox">
 						<button class="but_delete_trading" data-action='removePurchase' title="Видалити">
 							<img src="pictures/bin.png" alt="photo" width="25" height="25">
@@ -238,12 +231,10 @@
 
 			<!--start modal window chat-->
 			<section class="content chat hide">
-	         <div class="header-box">
-	            <p class="header-name">Листування</p>
-	            <div class="header-cross">
-	               <div class="cross"></div>
-	            </div>
-	         </div>
+				<div class="content-cross">
+					<div class="cross"></div>
+				</div>
+	         <h2 class="content-header">Листування</h2>
 	         <div class="core">
 	            <div class="core-left">
 	               <ul class="list-goods">
@@ -273,6 +264,12 @@
 	         </div>
 			</section>
 			<!--end modal window chat-->
+
+			<!--start modal window favorites-->
+			<?php
+				include('slice pages/favorites html.php');
+			?>
+			<!--end modal window favorites-->
 
 			<div id="right">
 				<div class="right-wrap">

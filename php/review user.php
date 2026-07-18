@@ -1,57 +1,111 @@
 <?php
-	session_start();
-	include 'connection bd.php';
+session_start();
+// include DB connection (may set $conn)
+@include 'connection bd.php';
 
-	$answerServer= [];
-	$arr_error = [];
-	$n = 0;
+$answerServer = [];
+$arr_error = [];
 
-	$action = $_POST['action'];
-	$id_user = $_POST['id_review'];
-	$review = $_POST['review-comment'];
-	$new_value = [
-		filter_has_var(INPUT_POST, 'payment') ? $_POST['payment'] : 0,
-		filter_has_var(INPUT_POST, 'analogy') ? $_POST['analogy'] : 0,
-		filter_has_var(INPUT_POST, 'sending') ? $_POST['sending'] : 0,
-		filter_has_var(INPUT_POST, 'dialog') ? $_POST['dialog'] : 0
-	];
+// Basic input validation
+$from_whom = isset($_SESSION['id']) ? (int)$_SESSION['id'] : null;
+$action = isset($_POST['action']) ? $_POST['action'] : null;
+$id_user = isset($_POST['id_review']) ? (int)$_POST['id_review'] : null;
+$review = isset($_POST['review-comment']) ? $_POST['review-comment'] : '';
+$new_value = [
+	isset($_POST['payment']) ? (int)$_POST['payment'] : 0,
+	isset($_POST['analogy']) ? (int)$_POST['analogy'] : 0,
+	isset($_POST['sending']) ? (int)$_POST['sending'] : 0,
+	isset($_POST['dialog']) ? (int)$_POST['dialog'] : 0
+];
 
-	$sql = "SELECT rating_payment, rating_analogy, rating_sending, rating_dialog FROM users WHERE id = $id_user";
+// Ensure DB connection exists
+if (!isset($conn) || !$conn) {
+	$answerServer['status'] = 'error';
+	$answerServer['error'] = ['db_connection_missing'];
+	echo json_encode($answerServer);
+	exit;
+}
 
-	if (!$response = mysqli_query($conn, $sql)) {
-		$arr_error['Get old value rating'] = 'fiasco';
-	} else {
-		$old_value = mysqli_fetch_row($response);
+// Update ratings only if we have a target user id
+if ($id_user) {
+	$replace_value = [0,0,0,0];
 
-		for ($i = 0; $i < count($new_value); $i++) {
-			if ($new_value[$i] == 0 && $old_value[$i] > 0) {
-				$replace_value[$i] = $old_value[$i];
-			} else if ($old_value[$i] == 0 && $new_value > 0) {
-				$replace_value[$i] = $new_value[$i];
-			} else {
-				$replace_value[$i] = round( ($old_value[$i] + $new_value[$i]) / 2, 1);
+	$sql = "SELECT rating_payment, rating_analogy, rating_sending, rating_dialog FROM users WHERE id = ?";
+	if ($stmt = $conn->prepare($sql)) {
+		$stmt->bind_param('i', $id_user);
+		$stmt->execute();
+		$res = $stmt->get_result();
+		$old_value = $res->fetch_row();
+		$stmt->close();
+
+		if ($old_value) {
+			for ($i = 0; $i < count($new_value); $i++) {
+				$nv = (int)$new_value[$i];
+				$ov = isset($old_value[$i]) ? (float)$old_value[$i] : 0;
+
+				if ($nv == 0 && $ov > 0) {
+					$replace_value[$i] = $ov;
+				} else if ($ov == 0 && $nv > 0) {
+					$replace_value[$i] = $nv;
+				} else {
+					$replace_value[$i] = round((($ov + $nv) / 2), 1);
+				}
 			}
 
-			if ($replace_value[$i] > 0) $n++;
+			$countNonZero = count(array_filter($replace_value, function($v){ return $v > 0; }));
+			$rating_user = $countNonZero > 0 ? round(array_sum($replace_value) / $countNonZero, 1) : 0;
+
+			// Update user ratings
+			$updateSql = "UPDATE users SET rating_payment = ?, rating_analogy = ?, rating_sending = ?, rating_dialog = ?, rating_user = ? WHERE id = ?";
+			if ($ust = $conn->prepare($updateSql)) {
+				$ust->bind_param('dddddi', $replace_value[0], $replace_value[1], $replace_value[2], $replace_value[3], $rating_user, $id_user);
+				if (!$ust->execute()) {
+					$arr_error['Update data rating'] = 'fiasco';
+				}
+				$ust->close();
+			} else {
+				$arr_error['Update prepare'] = 'fiasco';
+			}
 		}
-
-
-		$rating_user = round(array_sum($replace_value)/$n, 1);
-
-		$query = "UPDATE users SET rating_payment = '$replace_value[0]', rating_analogy = '$replace_value[1]', rating_sending = '$replace_value[2]', rating_dialog = '$replace_value[3]', rating_user = '$rating_user' WHERE id = '$id_user'";
-
-		if ( !mysqli_query($conn, $query) ) $arr_error['Update data rating'] = 'fiasco';
-	}
-
-	$answerServer['action'] = $_POST['action'];
-
-	if ( in_array('fiasco', array_values($arr_error)) ) {
-		$answerServer['error'] = array_keys($arr_error);
 	} else {
-		$answerServer['status'] = 'success';
+		$arr_error['Get old value rating'] = 'fiasco';
 	}
+}
 
-	echo json_encode($answerServer);
-		/* закрытие соединения */
-	mysqli_close($conn);
+// Ensure reviews table exists (safe to run)
+$ask = "CREATE TABLE IF NOT EXISTS reviews (
+	from_whom VARCHAR(10),
+	about_whom VARCHAR(10),
+	text_review TEXT
+)";
+$conn->query($ask);
+
+// Insert review using prepared statement
+if ($id_user) {
+	$ins = $conn->prepare("INSERT INTO reviews (from_whom, about_whom, text_review) VALUES (?, ?, ?)");
+	if ($ins) {
+		$from_val = $from_whom !== null ? (string)$from_whom : '';
+		$about_val = (string)$id_user;
+		$ins->bind_param('sss', $from_val, $about_val, $review);
+		if (!$ins->execute()) {
+			$arr_error['Insert review'] = 'fiasco';
+		}
+		$ins->close();
+	} else {
+		$arr_error['Insert prepare'] = 'fiasco';
+	}
+}
+
+$answerServer['action'] = $action;
+if (in_array('fiasco', array_values($arr_error))) {
+	$answerServer['error'] = array_keys($arr_error);
+	$answerServer['status'] = 'error';
+} else {
+	$answerServer['status'] = 'success';
+}
+
+echo json_encode($answerServer);
+
+// close connection if available
+if (isset($conn) && $conn) $conn->close();
 ?>

@@ -1,4 +1,5 @@
 .content {
+	position: relative;
 	width: 960px; /*ширина блока*/
 	box-sizing: border-box;
 	background-color: #fff;
@@ -6,27 +7,13 @@
 	border-radius: 6px;
 }
 
-.header-box {
-	display: flex;
-	height: 80px;
-	padding: 0px 30px;
-	justify-content: space-between;
-}
-
-.header-name {
-	line-height: 80px;
-	font-size: 24px;
-}
-
-.header-cross {
-	position: relative;
+.content-cross {
+	position: absolute;
 	width: 20px; height: 20px;
-	top: 50%;
-	transform: translateY(-50%);
-	cursor: pointer;
+	top: 20px; right: 20px;
 }
 
-.header-cross:hover {
+.content-cross:hover {
 	cursor: pointer;
 }
 
@@ -59,4 +46,11 @@
 	left: 0px;
 	border-radius: 1px;
 	transform: rotate(45deg);
+}
+
+.content-header {
+	height: 80px;
+	padding: 0px 30px;
+	line-height: 80px;
+	font-size: 24px;
 }

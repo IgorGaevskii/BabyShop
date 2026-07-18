@@ -10,13 +10,13 @@ import createElemError from "./createElemError.js";
 import {obj_window_ask} from "../ask.js";
 import {obj_window_chat} from "../user chat.js";
 import {interval, startSetInterval} from "./long query.js";
+import {obj_window_favorites} from "/js/favorites.js";
 
 export default function parseResponseServer(answerServer) {
 	const userName = document.getElementById('user-name'),
 		window_authorization = document.getElementById('authorization'),
 		window_cabinet = document.getElementById('cabinet'),
 		formAuthorization = document.forms.authorizationUser;
-		
 	
 	switch (answerServer.action) {
 		case 'forgotPassword':
@@ -110,24 +110,17 @@ export default function parseResponseServer(answerServer) {
 				}
 
 				if ('chatUser' in answerServer) {
-					let chatUser = JSON.stringify(answerServer.chatUser);
-					localStorage.setItem('chat', chatUser);
+					localStorage.setItem( 'chat', JSON.stringify(answerServer.chatUser) );
 					temp_array = temp_array.concat(answerServer.chatUser);
 				}
 
 				if (temp_array.length) obj_window_chat.getListGoods(temp_array);
 
-				if (window.location.pathname == '/card%20goods.php') {
-					console.log('true')
-					let btn_buy = document.querySelector('.card-goods-data-btn');
-					let btn_writeMessage = document.querySelector('.write-message');
-					let elem_src = document.querySelector('.detailed_information img');
-					let my_goods = answerServer.dataUser.id == elem_src.dataset.idSeller? 1: 0;
-					btn_buy.setAttribute('data-my-goods', my_goods);
-					btn_writeMessage.setAttribute('data-my-goods', my_goods);
-				}else{
-					console.log('false')
-				}
+				//передаем в объект obj_window_favorites данные для создания карточек избранных товаров и их отображения
+				if ('favorites' in answerServer) obj_window_favorites.createCardFavorite(answerServer.favorites)
+				// currentUserId создаётся на страницы card goods.php
+				// в currentUserId записуется id пользователя при авторизации
+				if (window.location.pathname == '/pages/card%20goods.php') currentUserId = answerServer.dataUser.id;
 			}
 
 			if (answerServer.status == 'not match') showModalWindow('Перевірте правильність введення пароля.', input_passwordAuthorization);
@@ -145,7 +138,7 @@ export default function parseResponseServer(answerServer) {
 			}
 			break;
 
-		case 'purchase goods':
+		case 'purchase':
 
 			if ('dataPurchaseGoods' in answerServer) {
 				let arr_purchasedGoods = [];
@@ -164,7 +157,7 @@ export default function parseResponseServer(answerServer) {
 				showModalWindow('Вибачте товар вже куплений іншим покупцем.');
 			}
 
-			document.querySelector('.card-goods-data-btn').disabled = true;
+			document.querySelector('.btn-buy').disabled = true;
 			break;
 		case 'deactivate':
 			/*функция изменяющая значение свойства display с show на hide в массиве 
@@ -182,9 +175,6 @@ export default function parseResponseServer(answerServer) {
 			break;
 		case 'delete':
 			deleteCardGoods();
-
-			// if ('sing' in answerServer) return;
-
 			break;
 		case 'removeSale':
 			removeCardTradingUser();//user trading.js
@@ -238,6 +228,13 @@ export default function parseResponseServer(answerServer) {
 		case 'unblock user':
 			delete answerServer.status;
 			obj_window_chat.toggleLockIconInStorage(answerServer);
+			break;
+		case 'removed': // удаляем карточки из окна favorite
+			obj_window_favorites.removeCardFavorite();
+			break;
+		default:
+			// запускается при выходе пользователя из кабинета
+			if (answerServer.success) currentUserId = null;
 			break;
 	}
 }

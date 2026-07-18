@@ -1,23 +1,22 @@
 import checkSymbol from "./module/checkSymbol.js";
 import checkFieldsForm from "./module/checkFieldsForm.js";
 import {openWindow} from "./module/open&closeWindow.js";
-import {formAuthorization, input_emailAuthorization, input_passwordAuthorization, but_authorization} from "./module/variables.js";
+import collectDataForServer from "./module/collectDataForServer.js";
 
-const modalWindow_forgotPassword  = document.getElementById('forgot_password'),
-	modalWindow_registrationMoveOne = document.getElementById('registration_move_one'),
+const formAuthorization = document.forms.authorizationUser,
+	input_emailAuthorization = formAuthorization.querySelector("input[name='email']"),
+	input_passwordAuthorization = formAuthorization.querySelector("input[name='password']"),
+	but_authorization = formAuthorization.querySelector("#but-authorization"),
 	elem_eyeSwitch = formAuthorization.querySelector('.eye-switch');
 
 //Checking the entered characters in the "email" field
 input_emailAuthorization.onfocus = function() {
-	// removeElementError(this);
 	checkSymbol(this);
 }
 
 //Checking the entered characters in the "password" field
 input_passwordAuthorization.onfocus = function() {
-	// removeElementError(this);
 	checkSymbol(this);
-	// description.innerHTML = "<p>Пароль должен содержать от 8 до 24 символа, иметь не мение 2 букв вверхнем регистре и 2 цифр.</p>";
 }
 
 elem_eyeSwitch.onclick = function() {
@@ -35,5 +34,8 @@ elem_eyeSwitch.onclick = function() {
 
 but_authorization.addEventListener('click', (e) => {
 	e.preventDefault();
-	checkFieldsForm(formAuthorization);
+
+	if (checkFieldsForm( formAuthorization.querySelectorAll('input') ) ) {
+		collectDataForServer(formAuthorization);
+	}
 });

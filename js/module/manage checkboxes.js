@@ -1,7 +1,9 @@
-import getAllInput from "./get all input.js";
+import {getAllInput} from "./get all input.js";
 
 export default function manageCheckboxes() {
-	let inputs = getAllInput(this.closest('.content_tab'));
+	let parentElem = this.closest('.control-panel');
+	let nextElem = parentElem.nextElementSibling;
+	let inputs = getAllInput(nextElem);
 
 	if (!inputs.length) {
 		this.checked = false;

@@ -13,7 +13,7 @@
 	$sql = "UPDATE users SET active = false WHERE id = '$id_user'";
 
 	if ( mysqli_query($conn, $sql) ) {
-		$answerServer['status'] = 'success';
+		$answerServer['success'] = true;
 	} else {
 		$answerServer['error'] = 'Error: '.mysqli_error($conn);
 	}

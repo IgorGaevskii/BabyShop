@@ -1,4 +1,4 @@
-import {window_ask, window_chat, window_mainContent, but_crossChat,  elemUl_listGoods_chat, elemUL_listPartners_chat, elemDiv_headingInfoGoods_chat, elemDiv_headingInfoUser_chat, elem_numberNewMessages, elemUL_message, form_sendMessage, elemTextarea_chat, elemBut_sendMessage_chat, elemDiv_messagesScreen} from "./module/variables.js";
+import {window_ask, window_chat, window_mainContent, elemUl_listGoods_chat, elemUL_listPartners_chat, elemDiv_headingInfoGoods_chat, elemDiv_headingInfoUser_chat, elem_numberNewMessages, elemUL_message, form_sendMessage, elemTextarea_chat, elemBut_sendMessage_chat, elemDiv_messagesScreen} from "./module/variables.js";
 import {closeWindow, openWindow} from "./module/open&closeWindow.js";
 import deleteChildNodes from "./module/deleteChildNodes.js";
 import collectDataForServer from "./module/collectDataForServer.js";
@@ -6,6 +6,8 @@ import {interval, startSetInterval, stopSetInterval} from "./module/long query.j
 import clearFieldsForm from "./module/clearFieldsForm.js";
 import {obj_window_ask} from "./ask.js";
 import {panelControl} from "./module/panel control.js";
+
+const but_crossChat = document.querySelector('.chat .content-cross');
 
 export let obj_window_chat = {
 	data_for_server: {
@@ -186,7 +188,7 @@ export let obj_window_chat = {
 	},
 
 	getListGoods(array) {
-		console.log(array);
+		
 		if (interval) stopSetInterval();
 
 		let arr_tmp = [];

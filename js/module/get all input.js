@@ -1,4 +1,4 @@
-export default function getAllInput(elem) {
-	let allInputs = elem.querySelectorAll('.box input');
+export function getAllInput(elem) {
+	let allInputs = elem.querySelectorAll('input');
 	return allInputs;
 }

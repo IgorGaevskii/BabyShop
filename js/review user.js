@@ -7,7 +7,7 @@ class WindowReview {
 		this.form = pop_up.querySelector('form');
 		this.allRadio = pop_up.querySelectorAll('input');
 		this.allLable = pop_up.querySelectorAll('label');
-		this.but_closeWindow = pop_up.querySelector('.wrapper-cross');
+		this.but_closeWindow = pop_up.querySelector('.modal-window-cross');
 		this.allRatingValue = pop_up.querySelectorAll('.rating__value');
 		this.but_userReview = pop_up.querySelector('.btn-user-review');
 	}

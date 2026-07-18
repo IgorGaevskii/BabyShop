@@ -1,23 +1,23 @@
-import {inputHatActiveAds, inputHatInactiveAds, window_mainContent} from "./module/variables.js";
+import {window_userAds, inputHatActiveAds, inputHatInactiveAds, window_mainContent} from "./module/variables.js";
 import deleteChildNodes from "./module/deleteChildNodes.js";
 import {panelControl} from "./module/panel control.js" ;
 import manageCheckboxes from "./module/manage checkboxes.js";
-import getAllInput from "./module/get all input.js";
+import {getAllInput} from "./module/get all input.js";
 import {obj_window_trading} from "./user trading.js";
 import {interval, startSetInterval, stopSetInterval} from "./module/long query.js";
 import {obj_window_chat} from "./user chat.js";
+import {closeWindow, openWindow} from './module/open&closeWindow.js';
 
 const header = document.querySelector('header'),
 	fieldSet = document.querySelector('fieldset'),
 	containerActiveAds = document.querySelector('.container_active_ads'),
 	containerInactiveAds = document.querySelector('.container_inactive_ads'),
-	but_crossUserAds = document.querySelector('.user_advert .header-cross'),
+	but_crossUserAds = document.querySelector('.user_advert .content-cross'),
 	but_displayAdvert = document.querySelectorAll('.but_display_advert'),
 	but_editAdvert = document.querySelectorAll('.but_edit_advert'),
 	but_deleteAdvert = document.querySelector('.but_delete_advert'),
 	elem_addAdvertSubcategory = document.querySelector('.addAdvert_subcategory');
 
-	// console.log(but_crossUserAds);
 function checkStorage(advertsUser) {
 	//если в хранилище все товары hide то отключаем запросы куплено, чат к базе
 	let findElem = advertsUser.find(item => item.data_goods.display == 'show');
@@ -95,7 +95,7 @@ export function createCardGoods() {
 		div.append(input);
 		div.insertAdjacentHTML('beforeend', 
 			`<img src="${advertsUser[i].data_goods.src}" alt="фото" width="90" height="90">
-				<ul>
+				<ul class='card-data'>
 					<li><b>${advertsUser[i].data_goods.title}</b></li>
 					<li class='article'>Арт: ${advertsUser[i].data_goods.article}</li>
 					<li>Цена: ${advertsUser[i].data_goods.price} грн</li>
@@ -189,30 +189,24 @@ async function exchangeData(formData, obj, url) {
 };
 
 // Функция для добавления обработчика событий
-const addClickHandler = (button) => {
-    if (button) {
-        button.onclick = function() {
-            panelControl.pressedButton = this;//file panel control.js
-            panelControl.checkExistenceMarkedInputs();//file panel control.js
-        };
-    }
-};
+[...but_displayAdvert, ...but_editAdvert, but_deleteAdvert].forEach(item => {
+	item.onclick = function() {
+		panelControl.pressedButton = this;//file panel control.js
+		panelControl.checkExistenceMarkedInputs();//file panel control.js
+	}
+})
 
-// Добавляем обработчики для каждой коллекции кнопок по отдельности
-if (but_displayAdvert) {
-    Array.from(but_displayAdvert).forEach(addClickHandler);
-}
+but_crossUserAds.onclick = function() {
+	closeWindow(window_userAds);
+	openWindow(window_mainContent);
+	//убираем галочки с input
+	let listProdact = window_userAds.querySelectorAll('.box');
 
-if (but_editAdvert) {
-    Array.from(but_editAdvert).forEach(addClickHandler);
-}
+	listProdact.forEach(item => {
+		panelControl.markedImputs = panelControl.getMarkedImputs(item);
 
-if (but_deleteAdvert) {
-    addClickHandler(but_deleteAdvert);
-}
-
-if (but_crossUserAds) {
-    addClickHandler(but_crossUserAds);
+		if (panelControl.markedImputs.length > 0) panelControl.deselectImputs(item);
+	});
 }
 
 if (inputHatActiveAds) {

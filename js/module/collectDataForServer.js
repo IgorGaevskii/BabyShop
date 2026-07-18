@@ -4,7 +4,6 @@ import {obj_window_chat} from "../user chat.js";
 import {obj_window_trading} from "../user trading.js";
 
 export default function collectDataForServer(data) {
-	console.log('inside function collectDataForServer');
 	console.log(data);
 	let url = '';
 	let formData = '';
@@ -44,11 +43,6 @@ export default function collectDataForServer(data) {
 		formData = new FormData();
 
 		switch (data.action) {
-			case 'purchase':
-				formData.append('article', data.article);
-				formData.append('id_buyer', JSON.parse(sessionStorage.getItem('user')).id);
-				url = '../../php/sold bought.php';
-				break;
 			case 'deactivate':
 				formData.append('action', data.action);
 				formData.append('data', data.articles);
@@ -109,6 +103,11 @@ export default function collectDataForServer(data) {
 				formData.append('article', data.article);
 				formData.append('id_partner', data.id_partner);
 				url = '../../php/block user.php';
+				break;
+			case 'remove favorite':
+				// formData.append('action', data.action);
+				formData.append('articles', data.articles);
+				url = '../../php/toggle_favorite.php';
 				break;
 			default:
 				formData.append('action', data.action);

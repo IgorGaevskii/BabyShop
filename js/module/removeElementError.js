@@ -1,6 +1,6 @@
 export function removeElementError(elem) {
 
-	if ( elem.nextElementSibling && elem.nextElementSibling.matches('.error')) {
+	if ( elem.nextElementSibling && elem.nextElementSibling.matches('.error') ) {
 		elem.nextElementSibling.remove();
 	}
 }

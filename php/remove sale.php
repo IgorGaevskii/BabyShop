@@ -57,7 +57,7 @@
 			$num_rows = mysqli_num_rows($reply);
 
 			if (!$num_rows) {
-				$request = "UPDATE product SET article = null, title = null, price = null, description = null, state = null, stock = null, display = null, time_display = null, top = null, id_user = null, id_subcategory = null WHERE article = '$article'";
+				$request = "UPDATE product SET article = null, title = null, price = null, description = null, state = null, stock = null, display = null, time_display = null, top = null, id_user = null, id_category = null, id_subcategory = null WHERE article = '$article'";
 				
 				if ( mysqli_query($conn, $request) ) {
 

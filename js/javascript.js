@@ -53,33 +53,33 @@ window.addEventListener("unload", () => {
 	}
 });
 
-function showModalWindow(answer, elem) {
-	let modalContent = modalWindow.querySelector('.modal-content');
-	modalContent.innerHTML = `<p>${answer}</p>
-							<button id='but-modal'>ok</button>`;
-	modalWindow.style.display = 'flex';
+// function showModalWindow(answer, elem) {
+// 	let modalContent = modalWindow.querySelector('.modal-content');
+// 	modalContent.innerHTML = `<p>${answer}</p>
+// 							<button id='but-modal'>ok</button>`;
+// 	modalWindow.style.display = 'flex';
 
-	document.getElementById('but-modal').onclick = () => {
-		deleteChildNodes(modalContent);
-		modalWindow.style.display = 'none';
-		// delete ticks with select impyts in window "user_advert"
-		if (panelControlAd.markedImputs) {
-			panelControlAd.deselectImputs();
-		} else if ( elem.matches('input[name="email"]') || elem.matches('input[name="password"]') ) {
-			elem.focus();
-		}
-	}
-}
+// 	document.getElementById('but-modal').onclick = () => {
+// 		deleteChildNodes(modalContent);
+// 		modalWindow.style.display = 'none';
+// 		// delete ticks with select impyts in window "user_advert"
+// 		if (panelControlAd.markedImputs) {
+// 			panelControlAd.deselectImputs();
+// 		} else if ( elem.matches('input[name="email"]') || elem.matches('input[name="password"]') ) {
+// 			elem.focus();
+// 		}
+// 	}
+// }
 
-function closeModalWindow(modal_window, form, description) {
-	modal_window.classList.add('hide');
-	clearFieldsRegistration(form);
-	removeElementsError();
+// function closeModalWindow(modal_window, form, description) {
+// 	modal_window.classList.add('hide');
+// 	clearFieldsRegistration(form);
+// 	removeElementsError();
 
-	if (description) description.innerHTML = '';
+// 	if (description) description.innerHTML = '';
 
-	if ( form.matches('[name="forgotPassword"]') ) but_forgotPassword.disabled = false;
-}
+// 	if ( form.matches('[name="forgotPassword"]') ) but_forgotPassword.disabled = false;
+// }
 
 elem_topCard.onclick = (event) => {
 

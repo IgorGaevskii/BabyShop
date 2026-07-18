@@ -1,0 +1,216 @@
+*{
+	margin: 0px; /*Убираем отступ*/
+	padding: 0px;
+}
+
+body {
+	width: 100vw;
+	height: 100vh;
+	background-color: #ededed; /*Фоновый цвет страницы*/
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+form {
+	width: 376px;
+	background-color: #fff;
+	box-sizing: border-box;
+	border: 3px solid brown;
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+.header-name {
+	line-height: 80px;
+	font-size: 24px;
+	padding-left: 30px;
+}
+
+.slider {
+	display: flex;
+	position: relative;
+	width: 400%;
+	left: 0px;
+	transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-slider {
+	width: 100%;
+	padding: 0px 30px 30px 30px;
+	text-align: center;
+	border: none;
+}
+
+.name-field:first-child {
+	margin-top: 0px;
+}
+
+.name-field {
+	display: block;
+	margin: 20px 0px 5px;
+	font-size: 20px;
+}
+
+.field-registration{
+	width: 100%; height: 30px;
+	border: 1px solid brown;
+	border-radius: 6px;
+	background-color: #fff;
+	outline: none;
+	padding: 0px 10px 0px;
+	box-sizing: border-box;
+}
+
+.error {
+	color: red; 
+}
+
+/* Стили выпадающего списка */
+.list-area {
+	display: none; /* Скрыт по умолчанию */
+  background: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  list-style: none;
+  text-align: left;
+}
+
+.item-list {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.item-list:hover {
+  background-color: #f0f0f0;
+}
+
+.but-further, .but-back, .btn-choose-avatar, .but-submit {
+	width: 100px; height: 25px;
+	border-radius: 6px;
+	cursor: pointer;
+	outline: none;
+	box-shadow: 4px 4px 5px #c0c0c0;
+}
+
+.but-further:active, .but-back:active, 
+.btn-choose-avatar:active, .but-submit:active {
+	box-shadow: none;
+}
+
+.but-further, .but-back, .but-submit {
+	margin-top: 30px;
+}
+
+.but-further {
+	display: block;
+	margin-left: auto;
+}
+
+.button-group {
+	display: flex;
+	justify-content: space-between;
+}
+
+.btn-choose-avatar {
+	width: 120px;
+	height: 25px;
+	margin-right: 10px;
+}
+
+.avatar {
+	display: flex;
+	flex-direction: column;
+}
+
+.space-avatar {
+	flex: auto;
+}
+
+.сhoose-avatar {
+	margin-top: 20px;
+	border: none;
+}
+
+.extensions {
+	margin-top: 5px;
+}
+	
+.error {
+	padding-top: 5px;
+	font-size: 16px;
+	color: red;
+}
+.check-data p {
+	font-size: 16px;
+	margin: 2px 0px;
+}
+/*End user registration*/
+
+.modal {
+	width: 100vw; height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: fixed;
+	background: rgb(0, 0, 0, 0.4);
+	top: 0px;
+	z-index: 9999;
+}
+
+.hide {
+	display: none;
+}
+
+.show {
+	display: flex;
+}
+
+.popup-window {
+	width: 250px;
+	background-color: #373737;
+	box-sizing: border-box;
+	border: 3px solid brown;
+	border-radius: 6px;
+}
+
+.message{
+	text-align: center;
+	color: #ffffff;
+	font-family: Verdana, sans-serif;
+	font-size: 18px;
+	margin: 0px;
+	padding: 20px 10px 0px 10px;
+}
+
+.popup-window a {
+	text-decoration: none;
+}
+
+.but-window {
+	display: block;
+	width: 100px; height: 25px;
+	border-radius: 6px;
+	margin: 20px auto;
+	cursor: pointer;
+	outline: none;
+	
+}
+
+/* Для устройств с шириной экрана меньше или равной 480px */
+@media (max-width: 480px) {
+  form {
+	width: 90%;
+  }
+
+  .slider {
+	width: 400%;
+  }
+
+  .page-slider {
+	width: 50%;
+  }
+}

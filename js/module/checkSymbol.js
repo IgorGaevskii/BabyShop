@@ -57,20 +57,20 @@ export default function checkSymbol(elem) {
 		}
 	} else if (elem.name == 'phone') {
 		// Разрешённые служебные клавиши
-		const allowedKeys = ["Tab", "Backspace", "Delete", "ArrowLeft", "ArrowRight", "Home", "End", "Shift"];
+		const allowedKeys = ["Tab", "Backspace", "Delete", "ArrowLeft", "ArrowRight", "Home", "End", "Shift", " "];
 		fun = (symbol) => {
 			return /^[0-9()-]+$/.test(symbol) // Разрешаем ввод только цифр
+			|| allowedKeys.includes(symbol); // Разрешаем служебные клавиши 
+		}
+	} else if (elem.name == 'region' || elem.name == 'district' || elem.name == 'city') {
+		const allowedKeys = ["Tab", "Backspace", "Delete", "ArrowLeft", "ArrowRight", "Home", "End", "Shift", " "];
+		fun = (symbol) => {
+			return /^[А-ЩЬЮЯЄІЇҐа-щьюяєіїґ'’-]+$/.test(symbol) // Разрешаем символы украинского алфовита
 			|| allowedKeys.includes(symbol); // Разрешаем служебные клавиши
 		}
 	}
 
 	elem.onkeydown = function(event) {
-		let symbol = event.key;
-
-		if ( fun(symbol) ) {
-			return true;
-		} else {
-			event.preventDefault();
-		}
+		return fun(event.key)? true: event.preventDefault();
 	}
 }

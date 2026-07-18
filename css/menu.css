@@ -1,6 +1,7 @@
 /*Start menu*/
 nav {
-	width: 244px;
+	width: 250px;
+	box-sizing: border-box;
 	background-color: #373737;
 	border: 3px solid brown;
 	border-radius: 6px;

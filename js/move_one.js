@@ -3,13 +3,14 @@ import checkSymbol from "/js/module/checkSymbol.js";
 import clearFieldsForm from "/js/module/clearFieldsForm.js";
 import checkFieldsForm from "/js/module/checkFieldsForm.js";
 import {removeElementError, removeElementsError} from "/js/module/removeElementError.js";
+import collectDataForServer from "/js/module/collectDataForServer.js";
 
 const window_registrationMoveOne = document.querySelector('.content'),
-	form_registrationMoveOne = document.forms.registrationMoveOne,
-	field_emailUser = form_registrationMoveOne.elements.email,
-	field_passwordUser = form_registrationMoveOne.elements.password_user,
-	field_repeatPassword = form_registrationMoveOne.elements.repeatPassword,
-	field_checkbox = form_registrationMoveOne.elements.consent,
+	form = document.forms.registrationMoveOne,
+	field_emailUser = form.elements.email,
+	field_passwordUser = form.elements.password_user,
+	field_repeatPassword = form.elements.repeatPassword,
+	field_checkbox = form.elements.consent,
 	elem_eyeSwitch = window_registrationMoveOne.querySelector('.eye-switch'),
 	elem_descriptionMoveOne = window_registrationMoveOne.querySelector('.description'),
 	but_registrationMoveOne = window_registrationMoveOne.querySelector('#but-registration-move-one');
@@ -71,5 +72,6 @@ const window_registrationMoveOne = document.querySelector('.content'),
 	but_registrationMoveOne.addEventListener('click', (event) => {
 		event.preventDefault();
 		removeElementsError();
-		checkFieldsForm(form_registrationMoveOne);
+		
+		if ( checkFieldsForm(form.elements) ) collectDataForServer(form);
 	});

@@ -1,13 +1,13 @@
 import {popupModal, message, but_popup} from "./variables.js";
 import deleteChildNodes from "./deleteChildNodes.js";
-import {openWindow, closeWindow} from "./open&closeWindow.js";
+import {modalWindow} from "./open&closeWindow.js";
 
 export default function showModalWindow(text, elem) {
 	message.innerHTML = text;
-	openWindow(popupModal);
+	modalWindow.open = popupModal;
 
 	but_popup.onclick = () => {
-		closeWindow(popupModal)
+		modalWindow.close;
 		deleteChildNodes(message);
 
 		if (elem && elem.tagName == 'INPUT') elem.focus();

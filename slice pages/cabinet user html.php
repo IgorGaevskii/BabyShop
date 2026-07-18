@@ -15,9 +15,9 @@
 	<ul id="cabinet-menu">
 		<li data-token='new_advert'>Нове оголошення</li>
 		<li data-token='user_advert'>Мої оголошення</li>
-		<li data-token='user_trading'>Моя торгівля</li>
+		<li data-token='user-trading'>Моя торгівля</li>
 		<li data-token='chat'>Повідомлення</li>
-		<li>Наблюдения</li>
+		<li data-token='favorites'>Избранное</li>
 		<li>Баланс</li>
 		<li>Настройки</li>
 	</ul>

@@ -14,28 +14,27 @@ export let obj_window_ask = {
 	},
 	lengthCorrespondence: 0,
 
-	checkWindowHidden(data) {
-
+	checkWindowHidden(obj) {
+		console.log(obj);
 		if ( window_ask.classList.contains('show-ask') ) {
 			return;
 		} else {
-			this.selectData(data);
+			this.selectData(obj);
 		}
 	},
 	
-	selectData(data) {
-		this.data_for_server.article = data.data_goods.article;
-		this.data_for_server.id_partner = data.data_partner.id;
-		this.src_avatar = data.data_partner.src_avatar;
-		console.log(this)
-		this.insertData(data);
+	selectData(obj) {
+		this.data_for_server.article = obj.article;
+		this.data_for_server.id_partner = obj.id_user;
+		this.src_avatar = obj.src_seller;
+		this.insertData(obj);
 	},
 
-	insertData(data) {
-		let {article, price, src, title} = data.data_goods;
+	insertData(obj) {
+		let {article, price, src_goods, title} = obj;
 		elem_askHeader.insertAdjacentHTML('beforeend', `
 			<div class="info-goods">
-	         <img class="box-img" src="${src}" alt="avatar goods" width="45" height="45">
+	         <img class="box-img" src="${src_goods}" alt="avatar goods" width="45" height="45">
 	         <div class="box-info info">
 	            <p class="info-title">${title}</p>
 	            <div class="info-brief">
@@ -117,8 +116,6 @@ function defaultValue() {
 	elem_typingArea.placeholder = 'Напишіть запитання';
 	elem_typingArea.style.textAlign = 'center';
 }
-
-// autosize(elem_typingArea);
 
 if (elem_typingArea) {
     // Работаем с элементами только если они существуют

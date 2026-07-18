@@ -7,6 +7,7 @@ $action = $_POST['action'];
 
 include 'connection bd.php';
 include 'selectUserAdverts.php';
+include 'selectFavoriteGoods.php';
 
 $answerServer = [];
 $arr_error = [];
@@ -55,39 +56,37 @@ if ( $response = mysqli_query($conn, $query) ) {
 					}
 				}
 
+				// select the user's favorite products
+				$arr = selectFavoriteGoodsUser($conn);
+
+				if ($arr != []) $arr_data['favorites'] = $arr;
+
 				$arr_temp = [];
 
-				// $sql = "SELECT DISTINCT article FROM chat WHERE to_whom = $id OR from_whom = $id";
+				//создаём перечень товаров по которым пользователем ведется переписка
 				$sql = "SELECT DISTINCT article FROM chat WHERE id_buyer = $id AND buyer_token = 'show'";
 				$response = mysqli_query($conn, $sql);
 
 				$i = 0;
 				while ( [$article] = mysqli_fetch_row($response) ) {
 
-					// if (!in_array($article, $arr_articles_chat)) {
+					//выбираем данные о товаре
+					$query = "SELECT product.article, product.title, product.price, product.id_user, photo_product.src FROM product JOIN photo_product ON photo_product.article = product.article 
+						WHERE product.article = '$article' AND photo_product.photo_sign = 1";
+					$outcome = mysqli_query($conn, $query);
+					$answer = mysqli_fetch_assoc($outcome);
+					$id_partner = $answer['id_user'];
+					$arr_temp[$i]['data_goods'] = $answer;
+					mysqli_free_result($outcome);
 
-						// $question = "SELECT * FROM sales WHERE article = '$article' AND id_seller = $id AND seller_sign = 'hide'";
-						// $report = mysqli_query($conn, $question);
-						// $total = mysqli_num_rows($report);
-
-						// if ($total != 0) continue;
-
-						$query = "SELECT product.article, product.title, product.price, product.id_user, photo_product.src FROM product JOIN photo_product ON photo_product.article = product.article 
-							WHERE product.article = '$article' AND photo_product.photo_sign = 1";
-						$outcome = mysqli_query($conn, $query);
-						$answer = mysqli_fetch_assoc($outcome);
-						$id_partner = $answer['id_user'];
-						$arr_temp[$i]['data_goods'] = $answer;
-						mysqli_free_result($outcome);
-
-						$ask ="SELECT id, user, phone, src_avatar FROM users WHERE id = '$id_partner'";
-						$refund = mysqli_query($conn, $ask);
-						$reply = mysqli_fetch_assoc($refund);
-						$arr_temp[$i]['data_partner'][] = $reply;
-						mysqli_free_result($refund);
-						$arr_articles_chat[] = $article;
-						$i++;
-					// }
+					//выбираем данные о продавце
+					$ask ="SELECT id, user, phone, src_avatar FROM users WHERE id = '$id_partner'";
+					$refund = mysqli_query($conn, $ask);
+					$reply = mysqli_fetch_assoc($refund);
+					$arr_temp[$i]['data_partner'][] = $reply;
+					mysqli_free_result($refund);
+					$arr_articles_chat[] = $article;
+					$i++;
 				}
 
 				if ($arr_temp != []) $arr_data['chatUser'] = $arr_temp;

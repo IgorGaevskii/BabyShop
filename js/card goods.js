@@ -7,20 +7,31 @@ import collectDataForServer from "./module/collectDataForServer.js";
 import {obj_window_ask} from "./ask.js";
 import {obj_window_chat, createCardGhat} from "./user chat.js";
 import {changeAdvert} from "./new advert.js";
+import {modalWindow, closeWindow, openWindow} from "./module/open&closeWindow.js";
+import {managementWindows} from "./module/managementWindows.js";
 
-const ratingActive = document.querySelector('.rating_active'),
+const window_mainContent = document.querySelector('.main-content'),
+	ratingActive = document.querySelector('.rating_active'),
 	ratingValue = document.querySelector('.rating_value'),
-	btn_buy = document.querySelector('.card-goods-data-btn'),
-	btn_writeMessage = document.querySelector('.write-message'),
+	btn_buy = document.querySelector('.btn-buy'),
+	btn_details = document.querySelector('.btn-details'),
+	btn_ask = document.querySelector('.btn-ask'),
+	btn_showGoodsSeller = window_mainContent.querySelector('.btn-goods-seller'),
 	btn_swipeLeft = document.querySelector('.swipe-left'),
 	btn_swipeRight = document.querySelector('.swipe-right'),
-	modalWindow = document.querySelector('.modal'),
-	elem_codeGoods = document.querySelector('.code_goods'),
-	elem_price = document.querySelector('.price-goods strong'),
-	elem_mainPhoto = document.querySelector('.main-photo'),
-	elem_title = document.querySelector('.titel-goods'),
-	elem_img = document.querySelector('.detailed_information img'),
+	btn_favorite = window_mainContent.querySelector('.btn-favorite'),
+	// elem_codeGoods = document.querySelector('.code_goods'),
+	// elem_price = document.querySelector('.price-goods strong'),
+	// elem_mainPhoto = document.querySelector('.main-photo'),
+	// elem_title = document.querySelector('.titel-goods'),
+	// elem_img = document.querySelector('.detailed_information img'),
 	allElem_photoAlbum = document.querySelectorAll('.photo-album img');
+
+const section_fullInfoSeller = document.querySelector('.full-info-seller'),
+	btn_closeModalWindow = section_fullInfoSeller.querySelector('.modal-window-cross');
+
+const window_goodsSeller = document.querySelector('.goods-seller'),
+	btn_crossGoodsSeller = window_goodsSeller.querySelector('.content-cross');
 
 let indexPhoto = 0;
 
@@ -38,11 +49,6 @@ function changeSrcPhoto() {
 	elem_mainPhoto.src = new_src;
 	changeFeaturedPhoto();
 }
-
-let obj = {
-	data_goods,
-	data_partner
-};
 
 document.addEventListener('DOMContentLoaded', () => {
 	createCardGoods();
@@ -72,45 +78,148 @@ btn_swipeRight.addEventListener('click', () => {
 	}
 });
 
-btn_writeMessage.onclick = function() {
-	let user = JSON.parse(sessionStorage.getItem('user'));
-
-	if (user == null) {
+btn_ask.onclick = function() {
+	// obj_data, currentUserId создаётся на страницы card goods.php
+	// в currentUserId записуется id пользователя при авторизации
+	// проверка авторизации клиент-сайд (для быстрой фидбэка)
+	if (typeof currentUserId === 'undefined' || currentUserId === null) {
 		showModalWindow('Необхідно авторизуватись');
 		return;
 	}
-
-	if (user.id == this.dataset.idSeller) {
-		showModalWindow(`Вибачте<br>Ви не можете написати собі`);
+	// проверка принадлежности товара (невозможно написать самому себя)
+	if (currentUserId == obj_data.id_user) {
+		showModalWindow(`Неможливо написати собі`);
 		return;
 	}
-
-	obj_window_ask.checkWindowHidden(obj);
+	
+	obj_window_ask.checkWindowHidden(obj_data);
 }
+
+btn_showGoodsSeller.addEventListener('click', function() {
+	managementWindows(this);
+})
 
 btn_buy.onclick = function() {
-	let user = JSON.parse(sessionStorage.getItem('user'));
-	
-	if (user == null) {
-		showModalWindow('Необхідно авторизуватись');
+	// obj_data, currentUserId создаётся на страницы card goods.php
+	// в currentUserId записуется id пользователя при авторизации
+	// проверка авторизации клиент-сайд (для быстрой фидбэка)
+    if (typeof currentUserId === 'undefined' || currentUserId === null) {
+        showModalWindow('Необхідно авторизуватись');
+        return;
+    }
+
+	// проверка принадлежности товара (невозможно купить у самого себя)
+	if (currentUserId == obj_data.id_user) {
+		showModalWindow(`Неможливо купити свій товар`);
 		return;
 	}
 
-	if (user.id == this.dataset.idSeller) {
-		showModalWindow(`Вибачте.<br>Ви не можете придбати свій товар`);
-		return;
-	}
-
-	let obj = {};
-	let text = elem_codeGoods.textContent;
-	obj.article = text.slice(-4);
-	obj.action = 'purchase';
-	collectDataForServer(obj);
+	obj_data.action = 'purchase';
+	sendQuery(JSON.stringify(obj_data), '../php/sold bought.php');
 }
 
-// function setRating() {
-// 	let ratingWidth = ratingValue.textContent / 0.05;
-// 	ratingActive.style.width = `${ratingWidth}%`;
-// }
+btn_details.addEventListener('click', () => {
+	modalWindow.open = section_fullInfoSeller;
+});
 
-// setRating();
+btn_closeModalWindow.onclick = () => {
+	modalWindow.close();
+}
+
+btn_crossGoodsSeller.addEventListener('click', () => {
+	closeWindow(window_goodsSeller);
+	openWindow(window_mainContent)
+})
+
+// --- favorites handler ---
+// Делегирование (подходит для динамически добавленных кнопок)
+btn_favorite.addEventListener('click', async function() {
+
+   // получить article
+   const article = obj_data.article;
+   if (!article) return;
+
+   // currentUserId создаётся на страницы card goods.php
+	// в currentUserId записуется id пользователя при авторизации
+   // проверка авторизации клиент-сайд (для быстрой фидбэка)
+   if (typeof currentUserId === 'undefined' || currentUserId === null) {
+      showModalWindow('Необхідно авторизуватись');
+      return;
+   }
+
+	// проверка принадлежности товара (невозможно добавить свой товар себе в избранное)
+	if (currentUserId == obj_data.id_user) {
+		showModalWindow(`Неможливо додати у обране свій товар`);
+		return;
+	}
+
+   // Делаем POST запрос на toggle_favorite.php
+   try {
+      const form = new FormData();
+      form.append('articles', [article]);
+
+      const resp = await fetch('/php/toggle_favorite.php', {
+         method: 'POST',
+         body: form,
+         credentials: 'same-origin'
+      });
+
+        if (!resp.ok) {
+            if (resp.status === 401) {
+                alert('Пожалуйста, авторизуйтесь');
+                return;
+            } else {
+                throw new Error('Network response not ok: ' + resp.status);
+            }
+        }
+
+        const json = await resp.json();
+        if (!json.success) {
+            console.error('toggle_favorite error', json);
+            alert('Ошибка сервера');
+            return;
+        }
+
+        // Переключаем класс active
+        if (json.action === 'added') {
+            this.classList.add('active');
+            this.title = 'Видалити з обраного';
+            // если у вас в SVG заливка зависит от .active, CSS отработает
+            // Дополнительно, если открыт модальный favorites — добавим элемент в список
+            // const favModal = document.querySelector('.content.favorites');
+            const window_favorites = document.querySelector('.favorites'),
+            	  listFavorites = window_favorites.querySelector('.list-favorites');
+                
+            if (listFavorites) {
+            	let {title, price, src} = json.product;
+            	
+               const li = document.createElement('li');
+               li.classList.add('item-favorites');
+               li.classList.add('card_ad');
+               li.dataset.article = article;
+               li.innerHTML = `
+                	<input type="checkbox">
+						<div class="card-favorite">
+							<img src="${src}" alt="фото" width="90" height="90">
+							<ul class="card-data">
+								<li><b>${title}</b></li>
+								<li class='article'>Арт: ${article}</li>
+								<li>Цена: ${price} гр</li>
+							</ul>
+						</div>
+					`;
+                listFavorites.prepend(li);
+            }
+        } else if (json.action === 'removed') {
+            this.classList.remove('active');
+            // Если открыт модальный favorites — удалим элемент с таким article
+            const window_favorites = document.querySelector('.favorites'),
+            		item = window_favorites.querySelector('.item-favorites[data-article="'+article+'"]');
+
+            if (item) item.remove();
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Ошибка при выполнении запроса');
+    }
+});

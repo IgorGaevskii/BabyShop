@@ -1,20 +1,28 @@
 import {window_mainContent, window_userAds, window_userTrading, inputHatActiveAds, inputHatInactiveAds, input_hatMySales, input_hatMyPurchases} from "./variables.js";
-import getAllInput from "./get all input.js";
+import {getAllInput} from "./get all input.js";
 import {closeWindow, openWindow} from './open&closeWindow.js';
 import collectDataForServer from "./collectDataForServer.js";
 
 export const panelControl = {
-	data: {},
+	data: {
+		// action, описание действия (что необходимо сделать)
+		// articles, массив articles с которыми необходимо выполнить действие
+	},
+	// pressedButton, нажатая кнопка на панели управления
 
-	deselectImputs(parent) {
+	deselectImputs(elem) {
 		this.markedImputs.forEach(item => item.checked = false);
 
-		if (parent.classList.contains('user_advert')) {
+		if (elem.closest('.user_advert')) {
 			inputHatActiveAds.checked = false;
 			inputHatInactiveAds.checked = false;
-		} else {
+		} else if (elem.closest('.user-trading')) {
 			input_hatMySales.checked = false;
 			input_hatMyPurchases.checked = false;
+		} else {
+			// убираем галочку с checkbox панели управления избранное
+			let input = this.pressedButton.previousElementSibling;
+			input.checked = false;
 		}
 		
 	},
@@ -23,9 +31,7 @@ export const panelControl = {
 		let arr = [];
 
 		this.markedImputs.forEach(item => {
-			// console.log(item)
 			let parent = item.closest('.card_ad');
-			// console.log(parent)
 			let elemLi = parent.querySelector('ul li.article');
 			let articleGoods = elemLi.textContent.slice(5);
 			arr.push(articleGoods);
@@ -38,18 +44,23 @@ export const panelControl = {
 		return action;
 	},
 
-	getMarkedImputs(openWindow) {
-		let open_window = openWindow || this.pressedButton.closest('.content');
-		let allContentTab = open_window.querySelectorAll('.content_tab');
-		let openTab = Array.from(allContentTab).find(item => !item.classList.contains('hide'));
-		
-		let arr = [];
-		let inputs = getAllInput(openTab);
-		inputs.forEach(item => {if (item.checked) arr.push(item)});
-		return arr;
+	getMarkedImputs(listProduct) {
+
+		if (!listProduct) {
+			let parentElem = this.pressedButton.closest('.control-panel');
+			listProduct = parentElem.nextElementSibling;
+		}
+
+		let allInputs = getAllInput(listProduct);
+
+		let arrMarkedInputs = [];
+		allInputs.forEach(item => {if (item.checked) arrMarkedInputs.push(item)});
+		return arrMarkedInputs;
 	},
 
 	checkExistenceMarkedInputs() {
+
+		//получем все маркерованные input
 		this.markedImputs = this.getMarkedImputs();
 
 		if (this.markedImputs.length > 1 && this.pressedButton.dataset.action == 'edit') {
@@ -57,15 +68,15 @@ export const panelControl = {
 			return;
 		}
 
-		if (this.markedImputs.length >= 0 && this.pressedButton.className == 'header-cross') {
+		/*if (this.markedImputs.length >= 0 && this.pressedButton.className == 'content-cross') {
 			let parent = this.pressedButton.closest('.content');
 			closeWindow(parent);
 			openWindow(window_mainContent);
 
-			if (this.markedImputs.length > 0) this.deselectImputs(parent); //remove the check marks
+			if (this.markedImputs.length > 0) this.deselectImputs(parent);
 
 			return;
-		}
+		}*/
 
 		if (!this.markedImputs.length) return;
 		this.deselectImputs( this.pressedButton.closest('.content') );

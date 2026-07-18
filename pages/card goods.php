@@ -16,22 +16,25 @@
 		<script type="module" src="../js/user advert.js" defer></script>
 		<script type="module" src="../js/user trading.js" defer></script>
 		<script type="module" src="../js/user chat.js" defer></script>
+
 	</head>
   	<body>
 		<?php
 			include('../slice pages/header.php');
 		?>
 		<main>
-			<div id="left">
-				<?php
-					include('../slice pages/menu.php');
-				?>
-			</div>
+			<?php
+				include('../slice pages/menu.php');
+			?>
 
 			<section class="content main-content">
 				<!-- Card goods -->
 				<?php
-					$codeNumber = $_GET['codeNumber'];
+					// default initializations to avoid undefined variable notices when codeNumber is missing
+					$data_goods = [];
+					$arr_photo = [];
+					$id_seller = null;
+					$codeNumber = isset($_GET['codeNumber']) ? $_GET['codeNumber'] : null;
 
 					if ( !empty($codeNumber) ) {
 						include 'php/connection bd.php';
@@ -42,8 +45,11 @@
 							$data_goods = mysqli_fetch_assoc($response);
 							$id_seller = $data_goods['id_user'];//id seller
 						}
-						
-						echo "<script>let data_goods = ".json_encode($data_goods).";</script>";
+						// Создаём объект с данными о товаре и продавце
+						// Из этого объекта в js будем выбирать данные для работы скрипта.
+						echo "<script>let obj_data = ".json_encode($data_goods).";</script>";
+						// Передача id текущего пользователя в JS (null если не авторизован)
+						echo "<script>let currentUserId = ".(isset($_SESSION['id']) ? (int)$_SESSION['id'] : 'null').";</script>";
 						
 						$arr_photo = [];
 						$sql = "SELECT * FROM photo_product WHERE article = '$codeNumber'";
@@ -62,17 +68,17 @@
 								<div class="but-swipe swipe-left">
 									<div class="tick__body"></div>
 								</div>
-								<!-- <button class="dut-swipe swipe-left">left</button> -->
 								<?php
 									$src_photo = array_find($arr_photo, function ($photo) {
     									return $photo['photo_sign'] == 1;
 									});
 									echo '<img class="main-photo" src="..'.$src_photo['src'].'" alt="photo goods" width="270" height="270">';
+									//Добавляем в объект путь к главной картинке товара
+									echo "<script>obj_data.src_goods = ".json_encode($src_photo['src']).";</script>";
 								?>
 								<div class="but-swipe swipe-right">
 									<div class="tick__body"></div>
 								</div>
-								<!-- <button class="dut-swipe swipe-right">right</button> -->
 							</div>
 							<div class="photo-album">
 								<?php
@@ -82,14 +88,14 @@
 								?>
 							</div>
 						</div>
-						<div class="product-description box">
-							<div class="box-header">
+						<div class="product-description container">
+							<div class="container-header">
 								<h3>Описание товара</h3>
 							</div>
 						</div>
 					</div>
 					<div class="grid-column">
-						<section class="column__section box card-goods-data">
+						<section class="column__section container card-goods-data">
 							<div class="card-goods-data-wrap">
 								<?php
 									echo '<span class="code_goods">Код: '.$data_goods['article'].'</span>
@@ -97,131 +103,101 @@
 											<span class="availability-goods">'.$data_goods['stock'].'</span>';
 								?>
 							</div>
+							<p class="titel-goods"><?php echo $data_goods['title']; ?></p>
+							<p class="price-goods">Цена: <strong><?php echo $data_goods['price']; ?> грн</strong></p>
 							<?php
-								echo '<p class="titel-goods">'.$data_goods['title'].'</p>
-									   <p class="price-goods">Цена: <strong>'.$data_goods['price'].' грн</strong></p>
-									   <button class="card-goods-data-btn" data-id-seller="'.$id_seller.'">Купить</button>
-										<button class="write-message" data-id-seller="'.$id_seller.'">Запитати</button>';
+								// проверяем, в избранном ли товар у текущего пользователя
+								$isFavorite = false;
+								if (isset($_SESSION['id'])) {
+									$uid = (int)$_SESSION['id'];
+									$articleEsc = mysqli_real_escape_string($conn, $data_goods['article']);
+									$q = "SELECT 1 FROM user_favorites WHERE id_user = $uid AND article = '$articleEsc' LIMIT 1";
+									$r = mysqli_query($conn, $q);
+									if ($r && mysqli_num_rows($r) > 0) $isFavorite = true;
+								}
 							?>
-						</section>
-						<section class="column__section box seller-data">
-							<div class="box-header">
-								<div class="box-header__title rating">
-									<div class="rating__title">
-										<?php
-										$request = "SELECT id, user, src_avatar, rating_payment, rating_analogy, rating_sending, rating_dialog, rating_user FROM users WHERE id = '$id_seller'";
-										$response = mysqli_query($conn, $request);
-										$answer = mysqli_fetch_assoc($response);
-										$user_name = $answer['user'];
-										$src_avatar = $answer['src_avatar'];
-										$data_partner = json_encode($answer);
-										echo "<h4>Продавец: <strong>$user_name</strong></h4>
-												<script>let data_partner = $data_partner;</script>";
-										?>
-									</div>
-									<div class="rating__stars"></div>
-									<div class="rating__value">(
-										<?php
-											echo $answer['rating_user'];
-										?>
-									)</div>
-								</div>
-								<div class="box-header__tick tick">
-									<div class="tick__body"></div>
-								</div>
-							</div>
-							<div class="detailed_information">
-								<?php
-								echo '<img src="..'.$src_avatar.'" alt="photo user" class="seller_avatar" data-id-seller="'.$id_seller.'" width="110" height="110">';
-								?>
-								<div class="detailed_information_body">
-									<p class="seller_city">Місто: <strong>Дніпро</strong></p>
-									<p>На сайте: <strong> 1 рік і 10 мясяців</strong></p>
-									<p class="seller_phone">Телефон продовца: <strong>Показать</strong></p>
-									<p>Графік роботи:</p>
-									<p>Вопрос продавцу: <strong>Задать</strong></p>
-								</div>
+							<div class="block-btn">
+								<button class="btn-buy">Купить</button>
+								<button class="btn-favorite <?php echo $isFavorite ? 'active' : ''; ?>"
+										  title="<?php echo $isFavorite ? 'Видалити з обраного' : 'Додати до обраного'; ?>">
+									<svg width="16" height="16"
+										  viewBox="0 0 24 24"
+										  fill="<?php echo $isFavorite ? 'red' : 'none'; ?>"
+										  stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1 .9-1-.9a5.5 5.5 0 10-7.8 7.8L12 22l8.8-9.6a5.5 5.5 0 000-7.8z"></path>
+									</svg>
+									<span class="btn-favorite-text">Обране</span>
+								</button>
 							</div>
 						</section>
-						<section class="column__section box seller-rating">
-							<div class="box-header">
-								<h4>Рейтинг продавца:</h4>
-								<div class="box-header__tick tick">
-									<div class="tick__body"></div>
+
+						<section class="column__section container seller-data">
+							<?php
+								// Объединенный запрос: выбираем данные пользователя и его город
+								$request = "SELECT u.id, u.created, u.user, u.phone, u.src_avatar, u.rating_payment, u.rating_analogy, u.rating_sending, u.rating_dialog, u.rating_user, p.name_city FROM users u LEFT JOIN place_residence p ON u.id = p.id_user WHERE u.id = '$id_seller'";
+								
+								$response = mysqli_query($conn, $request);
+								$answer = mysqli_fetch_row($response);
+
+								[$id_seller, $created, $name_seller, $phone_seller, $src_avatar, $rating_payment, $rating_analogy, $rating_sending, $rating_dialog, $rating_user, $name_city] = $answer;
+						                
+								// Продолжительность регистрации
+								$date_created = new DateTime($created);
+								$now = new DateTime();
+								$interval = $date_created->diff($now);
+								$years = $interval->y;
+								$months = $interval->m;
+
+								if ($years == 0) {
+									// Только месяцы
+									if ($months == 0) {
+										$duration = 'менше місяця';
+									} else if ($months == 1) {
+										$duration = "1 місяць";
+									} else if ($months >= 2 || $months <= 4) {
+										$duration = "$months місяці";
+									} else {
+										$duration = "$months місяців";
+									}
+
+								} else {
+									// Годы и месяцы
+									$yearWord = ($years == 1) ? "рік" : (($years >= 2 && $years <= 4) ? "роки" : "років");
+									if ($months == 0) {
+										$duration = "$years $yearWord";
+									} else {
+										$monthWord = ($months == 1) ? "місяць" : (($months >= 2 && $months <= 4) ? "місяці" : "місяців");
+										$duration = "$years $yearWord і $months $monthWord";
+									}
+								}
+
+								//Добавляем в объект путь к аватару продавца
+								echo "<script>obj_data.src_seller = ".json_encode($src_avatar).";</script>";
+							?>
+							<h4 class="container-header">Продавец: <strong><?php echo $name_seller; ?></strong></h4>
+							<div class="container-content">
+								<img src="..<?php echo $src_avatar; ?>" alt="seller avatar" width="110" height="110">
+								<div class="information">
+									<div class="brief-inform">
+										<div class="rating">
+											<div class="rating__title">Загальний рейтинг:</div>
+											<div class="rating__stars"></div>
+											<div class="rating__value">(<?php echo $rating_user; ?>)</div>
+										</div>
+										<p>На сайті: <strong><?php echo $duration; ?></strong></p>
+										<p>Графік роботи: <strong>не вказано</strong></p>
+									</div>
+									<div class="know-more">
+										<button class="btn-details">Докладніше</button>
+										<button class="btn-ask">Запитати</button>
+										<button class="btn-goods-seller" data-token="goods-seller">Інші товари</button>
+									</div>
 								</div>
 							</div>
-							<ul class="seller-rating-list">
-								<li class="seller-rating-list__item rating">
-									<div class="rating__title">
-										Загальний рейтинг продавця
-									</div>
-									<div class="rating__stars">
-										<?php
-											echo "<div class='rating__active' style='width:".$answer['rating_user'] / 0.05."%'></div>"
-										?>
-									</div>
-									<div class="rating__value">
-										<?php
-											echo $answer['rating_user'];
-										?>
-									</div>
-								</li>
-								<li class="seller-rating-list__item rating">
-									<div class="rating__title">
-										Відповідність товару опису
-									</div>
-									<div class="rating__stars">
-										<?php
-											echo "<div class='rating__active' style='width:".$answer['rating_analogy'] / 0.05."%'></div>"
-										?>
-									</div>
-									<div class="rating__value">
-										<?php
-											echo $answer['rating_analogy'];
-										?>
-									</div>
-								</li>
-								<li class="seller-rating-list__item rating">
-									<div class="rating__title">
-										Швидкість відправлення товару
-									</div>
-									<div class="rating__stars">
-										<?php
-											echo "<div class='rating__active' style='width:".$answer['rating_sending'] / 0.05."%'></div>"
-										?>
-									</div>
-									<div class="rating__value">
-										<?php
-											echo $answer['rating_sending'];
-										?>
-									</div>
-								</li>
-								<li class="seller-rating-list__item rating">
-									<div class="rating__title">
-										Спілкування продавця з покупцем
-									</div>
-									<div class="rating__stars">
-										<?php
-											echo "<div class='rating__active' style='width:".$answer['rating_dialog'] / 0.05."%'></div>"
-										?>
-									</div>
-									<div class="rating__value">
-										<?php
-											echo $answer['rating_dialog'];
-										?>
-									</div>
-								</li>
-							</ul>
 						</section>
-						<section class="column__section box payment-delivery">
-							<div class="box-header">
-								<h4>Оплата та доставка:</h4>
-								<div class="box-header__tick tick">
-									<div class="but-wrapper">
-										<div class="tick__body"></div>
-									</div>
-								</div>
-							</div>
+						
+						<section class="column__section container payment-delivery">
+							<h4 class="container-header">Оплата та доставка:</h4>
 							<ul class="list-payment">Оплата
 								<li class="item-payment">Карта ПриватБанка</li>
 								<li class="item-payment">Карта МоноБанка</li>
@@ -237,12 +213,10 @@
 
 			<!--start modal window new advert-->
 			<section class="content new_advert hide">
-				<div class="header-box">
-					<p class="header-name">Нове оголошення</p>
-					<div class="header-cross" data-status-window="newAdvert">
-						<div class="cross"></div>
-					</div>
+				<div class="content-cross" data-status-window="newAdvert">
+					<div class="cross"></div>
 				</div>
+				<h2 class="content-header">Нове оголошення</h2>
 				<div class="wrapper_form">
 					<form name="new_advert">
 						<p class="addAdvert_name_field">Категорія товару</p>
@@ -331,18 +305,16 @@
 					
 			<!--start modal window advert user-->
 			<section class="content user_advert hide">
-				<div class="header-box">
-					<p class="header-name">Мої оголошення</p>
-					<div class="header-cross">
-						<div class="cross"></div>
-					</div>
+				<div class="content-cross">
+					<div class="cross"></div>
 				</div>
+				<h2 class="content-header">Мої оголошення</h2>
 				<ul class="tabs">
 					<li class="tabs-item active" data-item="0">Активні</li>
 					<li class="tabs-item" data-item="1">Неактивні</li>
 				</ul>
 				<div class="content_tab">
-					<div class="hat_ads active_ads">
+					<div class="control-panel active_ads">
 						<input type="checkbox">
 						<button class="but_display_advert" data-action='deactivate' title="Деактивувати">
 							<img src="../pictures/cross screen computer.png" alt="photo" width="30" height="30">
@@ -353,7 +325,7 @@
 					</div>
 				</div>
 				<div class="content_tab hide">
-					<div class="hat_ads inactive_ads">
+					<div class="control-panel inactive_ads">
 						<input type="checkbox">
 						<button class="but_display_advert" data-action='activate' title="Активувати">
 							<img src="../pictures/tick screen computer.png" alt="photo" width="30" height="30">
@@ -374,18 +346,16 @@
 
 			<!--start modal window user trading-->
 			<section class="content user-trading hide">
-				<div class="header-box">
-					<p class="header-name">Моя торгівля</p>
-					<div class="header-cross">
-						<div class="cross"></div>
-					</div>
+				<div class="content-cross">
+					<div class="cross"></div>
 				</div>
+				<h2 class="content-header">Моя торгівля</h2>
 				<ul class="tabs">
 			      <li class="tabs-item active" data-item="0">Продажи</li>
 			      <li class="tabs-item" data-item="1">Покупки</li>
 			   </ul>
 				<div class="content_tab">
-					<div class="hat_ads my-sales">
+					<div class="control-panel my-sales">
 						<input type="checkbox">
 						<button class="but_delete_trading" data-action='removeSale' title="Видалити">
 							<img src="../pictures/bin.png" alt="photo" width="25" height="25">
@@ -396,7 +366,7 @@
 					</ul>
 				</div>
 				<div class="content_tab hide">
-					<div class="hat_ads my-purchases">
+					<div class="control-panel my-purchases">
 						<input type="checkbox">
 						<button class="but_delete_trading" data-action='removePurchase' title="Видалити">
 							<img src="../pictures/bin.png" alt="photo" width="25" height="25">
@@ -411,12 +381,10 @@
 
 			<!--start modal window chat-->
 			<section class="content chat hide">
-	         <div class="header-box">
-	            <p class="header-name">Листування</p>
-	            <div class="header-cross">
-	               <div class="cross"></div>
-	            </div>
-	         </div>
+				<div class="content-cross">
+					<div class="cross"></div>
+				</div>
+				<h2 class="content-header">Листування</h2>
 	         <div class="core">
 	            <div class="core-left">
 	               <ul class="list-goods">
@@ -446,6 +414,42 @@
 	         </div>
 			</section>
 			<!--end modal window chat-->
+
+			<!--start modal window favorites-->
+			<?php
+				include('../slice pages/favorites html.php');
+			?>
+			<!--end modal window favorites-->
+
+			<!--start window other goods seller-->
+			<section class="content goods-seller hide">
+				<div class="content-cross">
+					<div class="cross"></div>
+				</div>
+				<h2 class="content-header">Інші товари продавця</h2>
+				<div class="list-goods-seller">
+					<?php
+						$query = "SELECT p.article, p.title, p.price, ph.src FROM product as p
+									JOIN photo_product as ph ON ph.article = p.article
+									WHERE p.id_user = $id_seller AND p.display = 'show'";
+						$response = mysqli_query($conn, $query);
+						/* извлечение ассоциативного массива */
+						while ($result = mysqli_fetch_array($response)) {
+							[$gs_article, $gs_title, $gs_price, $gs_src_icon] = $result;
+
+							echo <<<HTML
+								<div class="card">
+									<img src="$gs_src_icon" width="230" height="230">
+									<p class="card__name">$gs_title</p>
+									<p class="card__code">Код товара: <span class="code-number">$gs_article</span></p>
+									<p class="card__price">Цена: $gs_price гр</p>
+								</div>
+							HTML;
+						}
+					?>
+				</div>
+			</section>
+			<!--end window other goods seller-->
 
 			<div id="right">
 				<div class="right-wrap">

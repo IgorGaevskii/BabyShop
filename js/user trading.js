@@ -1,14 +1,16 @@
-import {but_crossUserTrading, input_hatMySales, input_hatMyPurchases, allBut_deleteTrading, window_reviewAboutSeller, window_reviewAboutBuyer, window_ask} from "./module/variables.js";
+import {window_mainContent, window_userTrading, input_hatMySales, input_hatMyPurchases, allBut_deleteTrading, window_reviewAboutSeller, window_reviewAboutBuyer, window_ask} from "./module/variables.js";
 import {panelControl} from "./module/panel control.js";
 import manageCheckboxes from "./module/manage checkboxes.js";
 import deleteChildNodes from "./module/deleteChildNodes.js";
-import {openWindow, modalWindow} from "./module/open&closeWindow.js";
+import {openWindow, modalWindow, closeWindow} from "./module/open&closeWindow.js";
 import {obj_window_ask} from "./ask.js";
 import collectDataForServer from "./module/collectDataForServer.js";
 import {createCardGoods} from "./user advert.js";
 import showModalWindow from "./module/showModalWindow.js";
 import {startSetInterval} from "./module/long query.js";
 import {obj_window_chat, createCardGhat} from "./user chat.js";
+
+const but_crossUserTrading = document.querySelector('.user-trading .content-cross')
 
 export let obj_window_trading = {
 	data_for_server: {
@@ -160,12 +162,13 @@ export function createCardTradingUser() {
 		let {article, title, price, src} = tradingUser[i].data_goods;
 		let {id, phone, rating_user, src_avatar, status, user} = tradingUser[i].data_partner;
 		let li = document.createElement('li');
-		let input = document.createElement('input');
-		input.type = 'checkbox';
-		li.append(input);
+		// let input = document.createElement('input');
+		// input.type = 'checkbox';
+		// li.append(input);
 
 		li.insertAdjacentHTML('beforeend', 
-			`<div class="card-trading">
+		  `<input type="checkbox">
+			<div class="card-trading">
 				<img src="${src}" alt="фото" width="90" height="90">
 				<ul class="card-data">
 					<li><b>${title}</b></li>
@@ -203,7 +206,7 @@ export function createCardTradingUser() {
 
 				showModalWindow(`Вибачте.<br>Товар ${tradingUser[i].data_goods.status} неможливо написати повідомлення`);
 			} else {
-				obj_window_ask.checkWindowHidden(tradingUser[i]);
+				obj_window_ask.checkWindowHidden({article, id_user: id, src_seller: src_avatar, price, src_goods: src, title});
 			}
 		}
 		
@@ -238,7 +241,7 @@ export function createCardTradingUser() {
 	if (!obj_window_trading.interval) obj_window_trading.tradingAlwaysQuery();
 };
 
-[...(allBut_deleteTrading || []), but_crossUserTrading].filter(button => button).forEach(button => {
+[...allBut_deleteTrading].forEach(button => {
 	if (button) {
 		button.onclick = function() {
 			panelControl.pressedButton = this;
@@ -246,6 +249,19 @@ export function createCardTradingUser() {
 		};
 	}
 });
+
+but_crossUserTrading.onclick = function() {
+	closeWindow(window_userTrading);
+	openWindow(window_mainContent);
+	//убираем галочки с input
+	let listProdact = window_userTrading.querySelectorAll('.box');
+
+	listProdact.forEach(item => {
+		panelControl.markedImputs = panelControl.getMarkedImputs(item);
+
+		if (panelControl.markedImputs.length > 0) panelControl.deselectImputs(item);
+	});
+}
 
 if (input_hatMySales) input_hatMySales.onclick = manageCheckboxes;
 if (input_hatMyPurchases) input_hatMyPurchases.onclick = manageCheckboxes;

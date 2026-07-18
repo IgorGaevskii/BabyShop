@@ -19,7 +19,7 @@ export function openWindow(elem) {
 }
 
 export let modalWindow = {
-	set open(elem) { 
+	set open(elem) {
 		this.elem = elem;
 		this.elem.classList.remove('hide');
 		this.elem.classList.add('show');
