@@ -38,7 +38,6 @@ but_outCabinet.onclick = () => {
 	if ( !elem_numberNewMessages.classList.contains('hide') ) {
 		elem_numberNewMessages.classList.add('hide');
 		elem_numberNewMessages.textContent = '';
-		// obj_window_chat.total_new_message = 0;
 	}
 
 	if (window_mainContent) openWindow(window_mainContent);

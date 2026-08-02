@@ -30,29 +30,29 @@
 			<section class="content main-content">
 				<!-- Card goods -->
 				<?php
-					// default initializations to avoid undefined variable notices when codeNumber is missing
-					$data_goods = [];
-					$arr_photo = [];
-					$id_seller = null;
-					$codeNumber = isset($_GET['codeNumber']) ? $_GET['codeNumber'] : null;
+					include 'php/connection bd.php';
 
-					if ( !empty($codeNumber) ) {
-						include 'php/connection bd.php';
+					$id_currentUser = isset($_SESSION['id']) ? (int)$_SESSION['id'] : null;
+					echo "<script>let id_currentUser = ".json_encode($id_currentUser).";</script>";
 
-						$query = "SELECT * FROM product WHERE article = '$codeNumber'";
+					// default initializations to avoid undefined variable notices when article is missing
+					$article = isset($_GET['article']) ? (int)$_GET['article'] : null;
+
+					if ( !empty($article) ) {
+						$query = "SELECT title, price, id_user, state, stock FROM product WHERE article = '$article'";
 
 						if ( $response = mysqli_query($conn, $query) ) {
 							$data_goods = mysqli_fetch_assoc($response);
-							$id_seller = $data_goods['id_user'];//id seller
+							// print_r($data_goods);
+							['title'=>$title, 'price'=>$price, 'id_user'=>$id_seller, 'state'=>$state, 'stock'=>$stock] = $data_goods;
 						}
 						// Создаём объект с данными о товаре и продавце
 						// Из этого объекта в js будем выбирать данные для работы скрипта.
+						$data_goods['article'] = $article;
 						echo "<script>let obj_data = ".json_encode($data_goods).";</script>";
-						// Передача id текущего пользователя в JS (null если не авторизован)
-						echo "<script>let currentUserId = ".(isset($_SESSION['id']) ? (int)$_SESSION['id'] : 'null').";</script>";
 						
 						$arr_photo = [];
-						$sql = "SELECT * FROM photo_product WHERE article = '$codeNumber'";
+						$sql = "SELECT * FROM photo_product WHERE article = '$article'";
 						$excerpt = mysqli_query($conn, $sql);
 
 						while ($result = mysqli_fetch_assoc($excerpt)) {
@@ -98,20 +98,20 @@
 						<section class="column__section container card-goods-data">
 							<div class="card-goods-data-wrap">
 								<?php
-									echo '<span class="code_goods">Код: '.$data_goods['article'].'</span>
-											<span class="state_goods">Стан: '.$data_goods['state'].'</span>
-											<span class="availability-goods">'.$data_goods['stock'].'</span>';
+									echo '<span class="code_goods">Код: '.$article.'</span>
+											<span class="state_goods">Стан: '.$state.'</span>
+											<span class="availability-goods">'.$stock.'</span>';
 								?>
 							</div>
-							<p class="titel-goods"><?php echo $data_goods['title']; ?></p>
-							<p class="price-goods">Цена: <strong><?php echo $data_goods['price']; ?> грн</strong></p>
+							<p class="titel-goods"><?php echo $title; ?></p>
+							<p class="price-goods">Цена: <strong><?php echo $price; ?> грн</strong></p>
 							<?php
 								// проверяем, в избранном ли товар у текущего пользователя
 								$isFavorite = false;
 								if (isset($_SESSION['id'])) {
-									$uid = (int)$_SESSION['id'];
-									$articleEsc = mysqli_real_escape_string($conn, $data_goods['article']);
-									$q = "SELECT 1 FROM user_favorites WHERE id_user = $uid AND article = '$articleEsc' LIMIT 1";
+									$id_currentUser = (int)$_SESSION['id'];
+									$articleEsc = mysqli_real_escape_string($conn, $article);
+									$q = "SELECT 1 FROM user_favorites WHERE id_user = $id_currentUser AND article = '$articleEsc' LIMIT 1";
 									$r = mysqli_query($conn, $q);
 									if ($r && mysqli_num_rows($r) > 0) $isFavorite = true;
 								}
@@ -235,7 +235,7 @@
 							<legend class="addAdvert_name_field">
 								Вставте изображения
 							</legend>
-							<button class="but_add_photo" data-action="appendPhoto" data-numberButton="1">1</batton>
+							<button class="but_add_photo" data-action="appendPhoto" data-numberButton="1">1</button>
 							<button class="but_add_photo" data-action="appendPhoto" data-numberButton="2">2</button>
 							<button class="but_add_photo" data-action="appendPhoto" data-numberButton="3">3</button>
 							<button class="but_add_photo" data-action="appendPhoto" data-numberButton="4">4</button>

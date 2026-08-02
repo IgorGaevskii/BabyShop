@@ -1,4 +1,3 @@
-import {window_mainContent, window_userAds, window_userTrading, inputHatActiveAds, inputHatInactiveAds, input_hatMySales, input_hatMyPurchases} from "./variables.js";
 import {getAllInput} from "./get all input.js";
 import {closeWindow, openWindow} from './open&closeWindow.js';
 import collectDataForServer from "./collectDataForServer.js";
@@ -9,22 +8,11 @@ export const panelControl = {
 		// articles, массив articles с которыми необходимо выполнить действие
 	},
 	// pressedButton, нажатая кнопка на панели управления
+	// markedImputs, коллекция checkbox
 
 	deselectImputs(elem) {
-		this.markedImputs.forEach(item => item.checked = false);
-
-		if (elem.closest('.user_advert')) {
-			inputHatActiveAds.checked = false;
-			inputHatInactiveAds.checked = false;
-		} else if (elem.closest('.user-trading')) {
-			input_hatMySales.checked = false;
-			input_hatMyPurchases.checked = false;
-		} else {
-			// убираем галочку с checkbox панели управления избранное
-			let input = this.pressedButton.previousElementSibling;
-			input.checked = false;
-		}
-		
+		let listInputs = elem.querySelectorAll('input');
+		listInputs.forEach(item => item.checked = false);
 	},
 
 	getArticlesGoods() {
@@ -59,7 +47,6 @@ export const panelControl = {
 	},
 
 	checkExistenceMarkedInputs() {
-
 		//получем все маркерованные input
 		this.markedImputs = this.getMarkedImputs();
 
@@ -68,19 +55,9 @@ export const panelControl = {
 			return;
 		}
 
-		/*if (this.markedImputs.length >= 0 && this.pressedButton.className == 'content-cross') {
-			let parent = this.pressedButton.closest('.content');
-			closeWindow(parent);
-			openWindow(window_mainContent);
-
-			if (this.markedImputs.length > 0) this.deselectImputs(parent);
-
-			return;
-		}*/
-
 		if (!this.markedImputs.length) return;
-		this.deselectImputs( this.pressedButton.closest('.content') );
 
+		this.deselectImputs( this.pressedButton.closest('.content') );
 		this.data.action = this.getAction();
 		this.data.articles = this.getArticlesGoods();
 		collectDataForServer(this.data);

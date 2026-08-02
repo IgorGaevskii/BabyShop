@@ -716,15 +716,14 @@ form[name="send_message"] .typing-area {
 							#cabinet-menu li:hover #cabinet-menu li span {
 								color: #fff;
 							}
-					#but-out-cabinet{
-						display: block;
-						margin: 0px auto;
-						color: #000;
-						width: 100px; height: 25px;
-						bottom: 0px;
-						border-radius: 6px;
-						cursor: pointer;
-					}
+	#but-out-cabinet{
+		display: block;
+		margin: 0px auto;
+		color: #000;
+		width: 100px; height: 25px;
+		border-radius: 6px;
+		cursor: pointer;
+	}
 	/*End user cabinet*/
 
 	/*start window ask a question*/

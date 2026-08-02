@@ -987,8 +987,7 @@ form[name="send_message"] .typing-area {
 				display: block;
 				margin: 0px auto;
 				color: #000;
-				width: 80px; height: 26px;
-				bottom: 0px;
+				width: 100px; height: 25px;
 				border-radius: 6px;
 				cursor: pointer;
 			}

@@ -1,9 +1,10 @@
 import clearFieldsForm from "./clearFieldsForm.js";
 import showModalWindow from "./showModalWindow.js";
+import deleteChildNodes from "./deleteChildNodes.js";
 import {createCardGoods, changeDisplayAdverts, deleteCardGoods} from "../user advert.js";
 import {createCardTradingUser, removeCardTradingUser, obj_window_trading} from "../user trading.js";
 import {changeAdvert} from "../new advert.js";
-import {input_emailAuthorization, input_passwordAuthorization, elem_numberNewMessages} from "./variables.js";
+import {btn_favorite, input_emailAuthorization, input_passwordAuthorization, elem_numberNewMessages, listFavorites} from "./variables.js";
 import {modalWindow} from "./open&closeWindow.js";
 import {reviewSeller, reviewBuyer} from "../review user.js";
 import createElemError from "./createElemError.js";
@@ -91,6 +92,7 @@ export default function parseResponseServer(answerServer) {
 				userName.textContent = `${answerServer.dataUser.user}`;
 				window_authorization.style.transform = "rotateY(180deg)";
 				window_cabinet.style.transform = "rotateY(360deg)";
+				id_currentUser = answerServer.dataUser.id;
 				clearFieldsForm(formAuthorization);
 
 				let temp_array = [];
@@ -118,9 +120,6 @@ export default function parseResponseServer(answerServer) {
 
 				//передаем в объект obj_window_favorites данные для создания карточек избранных товаров и их отображения
 				if ('favorites' in answerServer) obj_window_favorites.createCardFavorite(answerServer.favorites)
-				// currentUserId создаётся на страницы card goods.php
-				// в currentUserId записуется id пользователя при авторизации
-				if (window.location.pathname == '/pages/card%20goods.php') currentUserId = answerServer.dataUser.id;
 			}
 
 			if (answerServer.status == 'not match') showModalWindow('Перевірте правильність введення пароля.', input_passwordAuthorization);
@@ -234,7 +233,16 @@ export default function parseResponseServer(answerServer) {
 			break;
 		default:
 			// запускается при выходе пользователя из кабинета
-			if (answerServer.success) currentUserId = null;
+			const pathname = window.location.pathname;
+
+			id_currentUser = null;
+
+			deleteChildNodes(listFavorites);
+
+			if (answerServer.success && pathname == '/pages/card%20goods.php' && btn_favorite.classList.contains('active')) {
+				btn_favorite.classList.remove('active');
+				btn_favorite.title = 'Додати до обраного';
+			}
 			break;
 	}
 }

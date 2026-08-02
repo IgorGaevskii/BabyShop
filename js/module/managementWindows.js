@@ -16,12 +16,7 @@ export function managementWindows(elem) {
 		if ( (item.classList.contains('user_advert') && !item.classList.contains('hide') ) || 
 			  (item.classList.contains('user-trading') && !item.classList.contains('hide') ) ||
 			  (item.classList.contains('favorites') && !item.classList.contains('hide') ) ) {
-			let listProdact = item.querySelectorAll('.box');
-			listProdact.forEach(item => {
-				panelControl.markedImputs = panelControl.getMarkedImputs(item);
-
-				if (panelControl.markedImputs.length > 0) panelControl.deselectImputs(item);
-			});
+			panelControl.deselectImputs(item);
 		}
 
 		closeWindow(item);

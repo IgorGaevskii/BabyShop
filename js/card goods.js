@@ -20,11 +20,6 @@ const window_mainContent = document.querySelector('.main-content'),
 	btn_swipeLeft = document.querySelector('.swipe-left'),
 	btn_swipeRight = document.querySelector('.swipe-right'),
 	btn_favorite = window_mainContent.querySelector('.btn-favorite'),
-	// elem_codeGoods = document.querySelector('.code_goods'),
-	// elem_price = document.querySelector('.price-goods strong'),
-	// elem_mainPhoto = document.querySelector('.main-photo'),
-	// elem_title = document.querySelector('.titel-goods'),
-	// elem_img = document.querySelector('.detailed_information img'),
 	allElem_photoAlbum = document.querySelectorAll('.photo-album img');
 
 const section_fullInfoSeller = document.querySelector('.full-info-seller'),
@@ -79,15 +74,15 @@ btn_swipeRight.addEventListener('click', () => {
 });
 
 btn_ask.onclick = function() {
-	// obj_data, currentUserId создаётся на страницы card goods.php
-	// в currentUserId записуется id пользователя при авторизации
+	// obj_data, id_currentUser создаётся на страницы card goods.php
+	// в id_currentUser записуется id пользователя при авторизации
 	// проверка авторизации клиент-сайд (для быстрой фидбэка)
-	if (typeof currentUserId === 'undefined' || currentUserId === null) {
+	if (id_currentUser === null) {
 		showModalWindow('Необхідно авторизуватись');
 		return;
 	}
 	// проверка принадлежности товара (невозможно написать самому себя)
-	if (currentUserId == obj_data.id_user) {
+	if (id_currentUser == obj_data.id_user) {
 		showModalWindow(`Неможливо написати собі`);
 		return;
 	}
@@ -100,16 +95,16 @@ btn_showGoodsSeller.addEventListener('click', function() {
 })
 
 btn_buy.onclick = function() {
-	// obj_data, currentUserId создаётся на страницы card goods.php
-	// в currentUserId записуется id пользователя при авторизации
+	// obj_data, id_currentUser создаётся на страницы card goods.php
+	// в id_currentUser записуется id пользователя при авторизации
 	// проверка авторизации клиент-сайд (для быстрой фидбэка)
-    if (typeof currentUserId === 'undefined' || currentUserId === null) {
+    if (id_currentUser === null) {
         showModalWindow('Необхідно авторизуватись');
         return;
     }
 
 	// проверка принадлежности товара (невозможно купить у самого себя)
-	if (currentUserId == obj_data.id_user) {
+	if (id_currentUser == obj_data.id_user) {
 		showModalWindow(`Неможливо купити свій товар`);
 		return;
 	}
@@ -134,22 +129,21 @@ btn_crossGoodsSeller.addEventListener('click', () => {
 // --- favorites handler ---
 // Делегирование (подходит для динамически добавленных кнопок)
 btn_favorite.addEventListener('click', async function() {
-
-   // получить article
+   // получаем article
    const article = obj_data.article;
    if (!article) return;
 
-   // currentUserId создаётся на страницы card goods.php
-	// в currentUserId записуется id пользователя при авторизации
+   // id_currentUser создаётся на страницы card goods.php
+	// в id_currentUser записуется id пользователя при авторизации
    // проверка авторизации клиент-сайд (для быстрой фидбэка)
-   if (typeof currentUserId === 'undefined' || currentUserId === null) {
+   if (id_currentUser === null) {
       showModalWindow('Необхідно авторизуватись');
       return;
    }
 
 	// проверка принадлежности товара (невозможно добавить свой товар себе в избранное)
-	if (currentUserId == obj_data.id_user) {
-		showModalWindow(`Неможливо додати у обране свій товар`);
+	if (id_currentUser == obj_data.id_user) {
+		showModalWindow(`Неможливо додати свій товар в обране`);
 		return;
 	}
 

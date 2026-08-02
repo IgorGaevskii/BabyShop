@@ -290,7 +290,7 @@
 
 
 		<!-- site-wide favorites handlers -->
-		<script type="module" src="/js/favorites.js" defer></script>
+		<script type="module" src="..js/favorites.js"></script>
 
 	</body>
-	</html>
+</html>

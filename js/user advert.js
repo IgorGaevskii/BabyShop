@@ -200,13 +200,7 @@ but_crossUserAds.onclick = function() {
 	closeWindow(window_userAds);
 	openWindow(window_mainContent);
 	//убираем галочки с input
-	let listProdact = window_userAds.querySelectorAll('.box');
-
-	listProdact.forEach(item => {
-		panelControl.markedImputs = panelControl.getMarkedImputs(item);
-
-		if (panelControl.markedImputs.length > 0) panelControl.deselectImputs(item);
-	});
+	panelControl.deselectImputs(window_userAds);
 }
 
 if (inputHatActiveAds) {

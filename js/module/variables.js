@@ -1,5 +1,7 @@
 export const allWindow = document.querySelectorAll('.content'),
 	window_mainContent = document.querySelector('.main-content'),
+	// page card goods
+	btn_favorite = window_mainContent.querySelector('.btn-favorite') || null, //кнопка со страницы купить
 	//window new advert
 	window_newAdvert = document.querySelector('.new_advert'),
 	headingName = window_newAdvert?.querySelector('.header-name'),
@@ -45,6 +47,9 @@ export const allWindow = document.querySelectorAll('.content'),
 	elemDiv_headingInfoUser_chat = window_chat?.querySelector('.heading-info-user'),
 	but_crossChat = window_chat?.querySelector('.header-cross'),
 	elemBut_sendMessage_chat = window_chat?.querySelector('.but-send-message'),
+	//window favorite
+	window_favorites = document.querySelector('.favorites') || null,
+	listFavorites = window_favorites ? window_favorites.querySelector('.list-favorites') : null,
 	//window cabinet
 	window_cabinet = document.getElementById('cabinet'),
 	elem_numberNewMessages = window_cabinet?.querySelector('.number-messages'),
@@ -54,4 +59,4 @@ export const allWindow = document.querySelectorAll('.content'),
 	message = popupModal.querySelector('.message'),
 	but_popup = popupModal.querySelector('.but-window');
 
-// console.log(window_mainContent);
+// console.log(btn_favorite);

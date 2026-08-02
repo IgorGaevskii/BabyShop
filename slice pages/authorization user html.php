@@ -1,9 +1,10 @@
 <?php
-session_start();
-	if ( empty($_SESSION) ) {
-		echo "<section id='authorization'>";
-	} else {
+	session_start();
+	
+	if ($id_currentUser) {
 		echo "<section id='authorization' style='transform: rotateY(180deg);'>";
+	} else {
+		echo "<section id='authorization'>";
 	}
 ?>
 	<p class="header">Авторизация</p>

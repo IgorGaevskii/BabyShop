@@ -162,9 +162,6 @@ export function createCardTradingUser() {
 		let {article, title, price, src} = tradingUser[i].data_goods;
 		let {id, phone, rating_user, src_avatar, status, user} = tradingUser[i].data_partner;
 		let li = document.createElement('li');
-		// let input = document.createElement('input');
-		// input.type = 'checkbox';
-		// li.append(input);
 
 		li.insertAdjacentHTML('beforeend', 
 		  `<input type="checkbox">
@@ -254,13 +251,7 @@ but_crossUserTrading.onclick = function() {
 	closeWindow(window_userTrading);
 	openWindow(window_mainContent);
 	//убираем галочки с input
-	let listProdact = window_userTrading.querySelectorAll('.box');
-
-	listProdact.forEach(item => {
-		panelControl.markedImputs = panelControl.getMarkedImputs(item);
-
-		if (panelControl.markedImputs.length > 0) panelControl.deselectImputs(item);
-	});
+	panelControl.deselectImputs(window_userTrading);
 }
 
 if (input_hatMySales) input_hatMySales.onclick = manageCheckboxes;

@@ -79,10 +79,6 @@
 					
 					if ( !mysqli_query($conn, $query) ) $arr_error['Remove SRC'] = 'fiasco';
 					
-					//удаляем переписку из таблицы chat
-					// mysqli_query($conn, "DELETE FROM chat WHERE article = $article");
-					// mysqli_query($conn, "DELETE FROM message WHERE article = $article");
-					// $answerServer['removed chad'][] = $article;
 				} else {
 					$arr_error['Remove goods from table product'] = 'fiasco';
 				}

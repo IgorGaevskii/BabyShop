@@ -1,13 +1,13 @@
 <?php
-	if ( empty($_SESSION) ) {
-		echo "<section id='cabinet'>
-					<div class='cabinet-header'>
-						<p id='user-name' class='cabinet-header__title'></p>
-					</div>";
-	} else {
+	if ($id_currentUser) {
 		echo "<section id='cabinet' style='transform: rotateY(360deg);'>
 					<div class='cabinet-header'>
 						<p id='user-name' class='cabinet-header__title'>".$_SESSION['user']."</p>
+					</div>";
+	} else {
+		echo "<section id='cabinet'>
+					<div class='cabinet-header'>
+						<p id='user-name' class='cabinet-header__title'></p>
 					</div>";
 	}
 ?>

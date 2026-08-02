@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function attachCardClickHandler(card) {
     card.addEventListener('click', function() {
         let codeNumber = this.querySelector('.code-number').textContent;
-        document.location.href = `../pages/card goods.php?codeNumber=${codeNumber}`;
+        document.location.href = `../pages/card goods.php?article=${codeNumber}`;
     });
 }
 

@@ -35,6 +35,10 @@
 				<!--Здесь расположены карточки топ товаров-->
 				<?php
 					include 'php/connection bd.php';
+
+					$id_currentUser = isset($_SESSION['id']) ? (int)$_SESSION['id'] : null;
+					echo "<script>let id_currentUser = ".json_encode($id_currentUser).";</script>";
+					
 					$query = "SELECT product.article, product.title, product.price, photo_product.src 
 					FROM product JOIN photo_product ON photo_product.article = product.article
 					WHERE product.top = 1 AND product.display = 'show' AND photo_product.photo_sign = 1";
@@ -45,10 +49,10 @@
 						[$article, $title, $price, $src] = $result;
 
 						echo <<<HTML
-							<div class="card">
+							<div class="card" data-article="$article">
 								<img src="$src" width="230" height="230">
 								<p class="card__name">$title</p>
-								<p class="card__code">Код товара: <span class="code-number">$article</span></p>
+								<p class="card__code">Код товара: $article</p>
 								<p class="card__price">Цена: $price гр</p>
 							</div>
 						HTML;
@@ -85,7 +89,7 @@
 							<legend class="addAdvert_name_field">
 								Вставте изображения
 							</legend>
-							<button class="but_add_photo" data-action="appendPhoto" data-numberButton="1">1</batton>
+							<button class="but_add_photo" data-action="appendPhoto" data-numberButton="1">1</button>
 							<button class="but_add_photo" data-action="appendPhoto" data-numberButton="2">2</button>
 							<button class="but_add_photo" data-action="appendPhoto" data-numberButton="3">3</button>
 							<button class="but_add_photo" data-action="appendPhoto" data-numberButton="4">4</button>

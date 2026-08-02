@@ -1,13 +1,11 @@
-import {window_mainContent} from "./module/variables.js";
+import {window_mainContent, btn_favorite, window_favorites, listFavorites} from "./module/variables.js";
 import {panelControl} from "./module/panel control.js";
 import manageCheckboxes from "./module/manage checkboxes.js";
 import {openWindow, modalWindow, closeWindow} from "./module/open&closeWindow.js";
 
-let window_favorites = document.querySelector('.favorites'),
-	input_favoritePanelControl = window_favorites.querySelector(".control-panel input[type='checkbox']"),
-	listFavorites = window_favorites.querySelector('.list-favorites'),
-	but_crossFavorites = window_favorites.querySelector('.content-cross'),
-	but_deleteFavorite = window_favorites.querySelector('.but_delete');
+let input_favoritePanelControl = window_favorites.querySelector(".control-panel input[type='checkbox']"),
+	 but_crossFavorites = window_favorites.querySelector('.content-cross'),
+	 but_deleteFavorite = window_favorites.querySelector('.but_delete');
 
 export let obj_window_favorites = {
 	checkArticle(array) {
@@ -18,9 +16,9 @@ export let obj_window_favorites = {
 		const urlArticle = urlParams.get('codeNumber');
 
 		if ( array.includes(urlArticle) ) {
-			const btn_favorite = window_mainContent.querySelector('.btn-favorite');
-			btn_favorite.classList.add('active');
-			btn_favorite.title = 'Видалити з обраного';
+			// меняем стили у кнопки "Обране" на странице купить
+			btn_favorite, window_favorites.classList.add('active');
+			btn_favorite, window_favorites.title = 'Видалити з обраного';
 		}
 	},
 
@@ -28,6 +26,7 @@ export let obj_window_favorites = {
 	createCardFavorite(array) {
 		let arr_tmp = [];
 		array.forEach(item => {
+			console.log(item);
 			let {article, title, price, src} = item;
 
 			let li = document.createElement('li');
@@ -59,10 +58,8 @@ export let obj_window_favorites = {
 	},
 
 	removeCardFavorite() {
-		const btn_favorite = document.querySelector('.btn-favorite');
-
 		const url = new URL(window.location.href),
-				urlArticle = url.searchParams.get('codeNumber');
+				urlArticle = url.searchParams.get('article');
 
 		panelControl.data.articles.forEach(article => {
 			let item = window_favorites.querySelector(`.item-favorites[data-article="${article}"]`);
@@ -80,13 +77,7 @@ but_crossFavorites.onclick = function() {
 	closeWindow(window_favorites);
 	openWindow(window_mainContent);
 	//убираем галочки с input
-	let listProdact = window_favorites.querySelectorAll('.box');
-
-	listProdact.forEach(item => {
-		panelControl.markedImputs = panelControl.getMarkedImputs(item);
-
-		if (panelControl.markedImputs.length > 0) panelControl.deselectImputs(item);
-	});
+	panelControl.deselectImputs(window_favorites);
 };
 
 input_favoritePanelControl.onclick = manageCheckboxes;
@@ -94,4 +85,16 @@ input_favoritePanelControl.onclick = manageCheckboxes;
 but_deleteFavorite.onclick = function() {
 	panelControl.pressedButton = this;
 	panelControl.checkExistenceMarkedInputs();
+}
+
+listFavorites.onclick = function(event) {
+	// Если клик был по чекбоксу игнорируем переключение контента
+	if (event.target.closest('input[type="checkbox"]')) {
+        return;
+    }
+	if ( event.target.closest('.item-favorites') ) {
+		let item_list = event.target.closest('.item-favorites');
+		let article = item_list.dataset.article;
+		document.location.href = `../pages/card goods.php?article=${article}`;
+	}
 }
