@@ -39,7 +39,7 @@
 					$article = isset($_GET['article']) ? (int)$_GET['article'] : null;
 
 					if ( !empty($article) ) {
-						$query = "SELECT title, price, id_user, state, stock FROM product WHERE article = '$article'";
+						$query = "SELECT title, price, id_user, state, stock, display FROM product WHERE article = '$article'";
 
 						if ( $response = mysqli_query($conn, $query) ) {
 							$data_goods = mysqli_fetch_assoc($response);

@@ -19,7 +19,7 @@ export default function checkSymbol(elem) {
 				return 0;
 			} else {
 				elem.closest('#authorization')? 
-					showModalWindow('Змініть розкладку клавіатури!', elem): 
+					showModalWindow('Змініть розкладку<br>клавіатури!', elem): 
 					createElemError(elem, 'Змініть розкладку клавіатури!');
 				elem.blur();
 				return 0;

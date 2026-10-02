@@ -31,13 +31,13 @@
       // Удаляем сам чат
       $delete_chat = "DELETE FROM chat WHERE article = $article AND id_seller = $id_seller AND id_buyer = $id_buyer";
       mysqli_query($conn, $delete_chat);
-
+      //Делаем проверку если в базе чатов нет больше переписок по товару то удаляем из базы сам товар
       $ask = "SELECT * FROM chat WHERE article = $article AND ( (seller_token = 'show' AND seller_token = 'sold') OR buyer_token = 'show' )";
       $report = mysqli_query($conn, $ask);
       $rows = mysqli_num_rows($report);
 
       if ($display == "remove" OR $display == 'purchase' AND $rows == 0) {
-         $request = "UPDATE product SET article=null, title=null, price=null, description=null, state=null, stock=null, display=null, time_display=null, top=null, id_user=null, id_subcategory=null WHERE article = '$article'";
+         $request = "UPDATE product SET article=null, title=null, price=null, description=null, state=null, stock=null, display=null, top=null, id_user=null, time_display=null, id_category=null, id_subcategory=null WHERE article = '$article'";
          mysqli_query($conn, $request);
 
          $question = "SELECT src FROM photo_product WHERE article = '$article'";
@@ -52,12 +52,13 @@
          mysqli_query($conn, "DELETE FROM photo_product WHERE article = '$article'");
       }
 
-      $answerServer['message'] = 'Чат и сообщения удалены';
+      $answerServer['message'] = 'Чат и сообщения<br>удалены';
    }
 
+   $answerServer['action'] = $_POST['action'];
    $answerServer['status'] = 'success';
    $answerServer['article'][] = $article;
-   $answerServer['action'] = $_POST['action'];
+   
    echo json_encode($answerServer);
 // --- конец блока удаления чата ---
 ?>

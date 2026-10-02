@@ -21,8 +21,11 @@ export default function collectDataForServer(data) {
 			url = "../../php/authorization user.php";
 			formData.append('action', 'authorization');
 		} else if (form.name == 'registrationMoveTwo') {
-			url = "../../php/registration user move two.php";
+			const urlParams = new URLSearchParams(window.location.search);
+			const token = urlParams.get('token'); // "admin"
+			formData.append('token', token);
 			formData.append('action', 'registrationMoveTwo');
+			url = "../../php/registration user move two.php";
 		} else if (form.name == 'review user') {
 			url = "../../php/review user.php";
 			formData.append('action', 'review user');

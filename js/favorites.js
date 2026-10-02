@@ -3,9 +3,9 @@ import {panelControl} from "./module/panel control.js";
 import manageCheckboxes from "./module/manage checkboxes.js";
 import {openWindow, modalWindow, closeWindow} from "./module/open&closeWindow.js";
 
-let input_favoritePanelControl = window_favorites.querySelector(".control-panel input[type='checkbox']"),
-	 but_crossFavorites = window_favorites.querySelector('.content-cross'),
-	 but_deleteFavorite = window_favorites.querySelector('.but_delete');
+let input_favoritePanelControl = window_favorites ? window_favorites.querySelector(".control-panel input[type='checkbox']") : null,
+	 but_crossFavorites = window_favorites ? window_favorites.querySelector('.content-cross') : null,
+	 but_deleteFavorite = window_favorites ? window_favorites.querySelector('.but_delete') : null;
 
 export let obj_window_favorites = {
 	checkArticle(array) {
@@ -13,7 +13,7 @@ export let obj_window_favorites = {
 		if (window.location.pathname != '/pages/card%20goods.php') return;
 
 		const urlParams = new URLSearchParams(window.location.search);
-		const urlArticle = urlParams.get('codeNumber');
+		const urlArticle = urlParams.get('article');
 
 		if ( array.includes(urlArticle) ) {
 			// меняем стили у кнопки "Обране" на странице купить
@@ -73,28 +73,36 @@ export let obj_window_favorites = {
 	}
 };
 
-but_crossFavorites.onclick = function() {
-	closeWindow(window_favorites);
-	openWindow(window_mainContent);
-	//убираем галочки с input
-	panelControl.deselectImputs(window_favorites);
-};
-
-input_favoritePanelControl.onclick = manageCheckboxes;
-
-but_deleteFavorite.onclick = function() {
-	panelControl.pressedButton = this;
-	panelControl.checkExistenceMarkedInputs();
+if (but_crossFavorites) {
+	but_crossFavorites.onclick = function() {
+		closeWindow(window_favorites);
+		openWindow(window_mainContent);
+		//убираем галочки с input
+		panelControl.deselectImputs(window_favorites);
+	}
 }
 
-listFavorites.onclick = function(event) {
-	// Если клик был по чекбоксу игнорируем переключение контента
-	if (event.target.closest('input[type="checkbox"]')) {
-        return;
-    }
-	if ( event.target.closest('.item-favorites') ) {
-		let item_list = event.target.closest('.item-favorites');
-		let article = item_list.dataset.article;
-		document.location.href = `../pages/card goods.php?article=${article}`;
+
+if (input_favoritePanelControl) input_favoritePanelControl.onclick = manageCheckboxes;
+
+if (but_deleteFavorite) {
+		but_deleteFavorite.onclick = function() {
+		panelControl.pressedButton = this;
+		panelControl.checkExistenceMarkedInputs();
+	}
+}
+
+if (listFavorites) {
+	listFavorites.onclick = function(event) {
+		// Если клик был по чекбоксу игнорируем переключение контента
+		if (event.target.closest('input[type="checkbox"]')) {
+	        return;
+	    }
+
+		if ( event.target.closest('.item-favorites') ) {
+			let item_list = event.target.closest('.item-favorites');
+			let article = item_list.dataset.article;
+			document.location.href = `../pages/card goods.php?article=${article}`;
+		}
 	}
 }

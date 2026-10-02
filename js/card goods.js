@@ -3,16 +3,13 @@ import sendQuery from './module/sendQuery.js';
 import showModalWindow from "./module/showModalWindow.js";
 import {createCardGoods} from "./user advert.js";
 import {createCardTradingUser} from "./user trading.js";
-import collectDataForServer from "./module/collectDataForServer.js";
 import {obj_window_ask} from "./ask.js";
-import {obj_window_chat, createCardGhat} from "./user chat.js";
+import {createCardGhat} from "./user chat.js";
 import {changeAdvert} from "./new advert.js";
 import {modalWindow, closeWindow, openWindow} from "./module/open&closeWindow.js";
 import {managementWindows} from "./module/managementWindows.js";
 
 const window_mainContent = document.querySelector('.main-content'),
-	ratingActive = document.querySelector('.rating_active'),
-	ratingValue = document.querySelector('.rating_value'),
 	btn_buy = document.querySelector('.btn-buy'),
 	btn_details = document.querySelector('.btn-details'),
 	btn_ask = document.querySelector('.btn-ask'),
@@ -105,7 +102,25 @@ btn_buy.onclick = function() {
 
 	// проверка принадлежности товара (невозможно купить у самого себя)
 	if (id_currentUser == obj_data.id_user) {
-		showModalWindow(`Неможливо купити свій товар`);
+		showModalWindow(`Вибачте, неможливо купити свій товар`);
+		return;
+	}
+
+	//товар снят продавцом с продаж
+	if (obj_data.display == 'hide') {
+		showModalWindow('Вибачте, неможливо купити товар. Продавець зняв товар із продажу');
+		return;
+	}
+
+	//товар удалён продавцом
+	if (obj_data.display == 'remove') {
+		showModalWindow('Вибачте, неможливо купити товар. Продавець вилучив товар');
+		return;
+	}
+
+	//товар куплен
+	if (obj_data.display == 'purchase') {
+		showModalWindow('Вибачте, неможливо купити товар. Товар уже куплено.');
 		return;
 	}
 

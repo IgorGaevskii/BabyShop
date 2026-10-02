@@ -69,12 +69,7 @@ export let obj_window_trading = {
 
 			if (allCard_topCard.length) {
 				let arr_elemCard = Array.from(allCard_topCard);
-				let removeElem = arr_elemCard.find(elem => {
-					let elemSpan = elem.querySelector('.code-number');
-					let codeNumber = elemSpan.textContent;
-
-					if (item.data_goods.article == codeNumber) return true;
-				});
+				let removeElem = arr_elemCard.find(elem => elem.data.article == item.data_goods.article);
 
 				if (removeElem) removeElem.remove();
 			}
@@ -247,12 +242,15 @@ export function createCardTradingUser() {
 	}
 });
 
-but_crossUserTrading.onclick = function() {
-	closeWindow(window_userTrading);
-	openWindow(window_mainContent);
-	//убираем галочки с input
-	panelControl.deselectImputs(window_userTrading);
+if (but_crossUserTrading) {
+	but_crossUserTrading.onclick = function() {
+		closeWindow(window_userTrading);
+		openWindow(window_mainContent);
+		//убираем галочки с input
+		panelControl.deselectImputs(window_userTrading);
+	}
 }
+
 
 if (input_hatMySales) input_hatMySales.onclick = manageCheckboxes;
 if (input_hatMyPurchases) input_hatMyPurchases.onclick = manageCheckboxes;

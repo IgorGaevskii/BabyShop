@@ -1,4 +1,4 @@
-/*Total settings*/
+/*Start total settings*/
 *{
 	margin: 0px;
 	padding: 0px;
@@ -11,6 +11,16 @@
 .show{
 	display: flex;
 }
+
+.small-but {
+	display: block;
+	width: 100px; height: 25px;
+	border-radius: 6px;
+	margin: 20px auto;
+	cursor: pointer;
+	outline: none;
+}
+/*End total settings*/
 
 body {
 	width: 100vw;
@@ -1131,7 +1141,7 @@ form[name="send_message"] .typing-area {
 			}
 	/*end window ask a question*/
 
-/*start popup window*/
+/*Start popup window*/
 .popup {
 	/*property "display: none" added as a separate class "hide"*/
 	width: 100vw; height: 100vh;
@@ -1143,7 +1153,7 @@ form[name="send_message"] .typing-area {
 	z-index: 99;
 }
 
-.popup-window{
+.popup-content {
 	width: 250px;
 	background-color: #373737;
 	box-sizing: border-box;
@@ -1152,7 +1162,7 @@ form[name="send_message"] .typing-area {
 	padding: 0px 20px;
 }
 
-.message{
+.popup-message {
 	text-align: center;
 	color: #ffffff;
 	font-family: Verdana, sans-serif;
@@ -1160,16 +1170,7 @@ form[name="send_message"] .typing-area {
 	margin: 0px;
 	padding: 20px 10px 0px 10px;
 }
-
-.but-window{
-	display: block;
-	width: 100px; height: 25px;
-	border-radius: 6px;
-	margin: 20px auto;
-	cursor: pointer;
-	outline: none;
-}
-/*end popup window*/
+/*End popup window*/
 	
 	.little-heading{
 		width: 450px; height: 50px;

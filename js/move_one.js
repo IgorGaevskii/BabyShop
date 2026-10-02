@@ -12,14 +12,12 @@ const window_registrationMoveOne = document.querySelector('.content'),
 	field_repeatPassword = form.elements.repeatPassword,
 	field_checkbox = form.elements.consent,
 	elem_eyeSwitch = window_registrationMoveOne.querySelector('.eye-switch'),
-	elem_descriptionMoveOne = window_registrationMoveOne.querySelector('.description'),
 	but_registrationMoveOne = window_registrationMoveOne.querySelector('#but-registration-move-one');
 
 	//Checking the entered characters in the "email" field
 	field_emailUser.onfocus = function() {
 		removeElementError(this);
 		checkSymbol(this);
-		elem_descriptionMoveOne.innerHTML = "<p>Вкажіть діючий Email, оскільки на вказану адресу буде надіслано листа для підтвердження пошти.</p>";
 	}
 
 	field_emailUser.onpaste = () => {
@@ -31,7 +29,7 @@ const window_registrationMoveOne = document.querySelector('.content'),
 		let elem = this.closest('.wrap-field-password');
 		removeElementError(elem);
 		checkSymbol(this);
-		elem_descriptionMoveOne.innerHTML = "<p>Пароль повинен містити від 8 до 24 символів, мати не менш 2 букв у верхньому регістрі та 2 цифр.</p>";
+		// elem_descriptionMoveOne.innerHTML = "<p>Пароль повинен містити від 8 до 24 символів, мати не менш 2 букв у верхньому регістрі та 2 цифр.</p>";
 	}
 
 	field_passwordUser.onpaste = () => {
@@ -61,7 +59,6 @@ const window_registrationMoveOne = document.querySelector('.content'),
 	field_repeatPassword.onfocus = function() {
 		removeElementError(this);
 		checkSymbol(this);
-		elem_descriptionMoveOne.innerHTML = "<p>Паролі повинні збігатися.</p>";
 	}
 
 	field_repeatPassword.onpaste = () => {

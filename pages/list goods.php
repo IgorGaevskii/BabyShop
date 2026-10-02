@@ -47,6 +47,9 @@
 					$id_category = null;
 					$id_subcategory = null;
 
+					$id_currentUser = isset($_SESSION['id']) ? (int)$_SESSION['id'] : null;
+					echo "<script>let id_currentUser = ".json_encode($id_currentUser).";</script>";
+
 					if (!empty($_POST['id_category']) && !empty($_POST['id_subcategory'])) {
 						$id_category = (int) $_POST['id_category'];
 						$id_subcategory = (int) $_POST['id_subcategory'];
@@ -200,7 +203,7 @@
 					</div>
 				</div>
 				<div class="content_tab hide">
-					<div class="hat_ads inactive_ads">
+					<div class="control-panel inactive_ads">
 						<input type="checkbox">
 						<button class="but_display_advert" data-action='activate' title="Активувати">
 							<img src="/pictures/tick screen computer.png" alt="photo" width="30" height="30">

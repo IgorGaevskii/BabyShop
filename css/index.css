@@ -1,4 +1,4 @@
-/*Total settings*/
+/*Start total settings*/
 *{
 	margin: 0px; /*Убираем отступ*/
 	padding: 0px;
@@ -11,6 +11,16 @@
 .show{
 	display: flex;
 }
+
+.small-but {
+	display: block;
+	width: 100px; height: 25px;
+	border-radius: 6px;
+	margin: 20px auto;
+	cursor: pointer;
+	outline: none;
+}
+/*End total settings*/
 
 body {
 	width: 100vw;
@@ -887,87 +897,6 @@ footer {
 						font-family: Verdana, sans-serif;
 						}
 
-/*Start user registration*/
-	.wrapper-form{
-		display: flex;
-		justify-content: flex-start;
-	}
-	form[name='registrationMoveOne'],
-	form[name='registrationMoveTwo'],
-	form[name='forgotPassword'] {
-		width: 476px;
-		margin: 0px;
-		text-align: center;
-	}
-
-	.name-field:first-child {
-		margin-top: 0px;
-	}
-
-	.name-field {
-		display: block;
-		margin: 20px 0px 5px 0px;
-		font-size: 20px;
-	}
-
-.field-registration{
-	width: 250px; height: 25px;
-	border: 1px solid brown;
-	border-radius: 6px;
-	background-color: #fff;
-	outline: none;
-	text-align: center;
-}
-.area-сhoose-avatar {
-	margin-top: 20px;
-}
-
-.btn-choose-avatar {
-	cursor: pointer;
-   width: 120px;
-   height: 25px;
-   border-radius: 6px;
-   box-shadow: 4px 4px 5px #c0c0c0;
-}
-
-.btn-choose-avatar:active {
-	box-shadow: none;
-}
-
-.extensions {
-	margin-top: 5px;
-}
-	
-	.error{
-		padding-top: 5px;
-		font-size: 16px;
-		color: red;
-	}
-	.vertical_stripe{
-		width: 2px; height: auto;
-		background-color: brown;
-	}
-	.description{
-		width: 476px;
-		font-size: 18px;
-	}
-
-.description p {
-	padding: 0px 10px 0px 10px;
-}
-	#but-registration-move-one, #but-registration-move-two,
-	#but-forgot_password{
-		position: relative;
-		left: 50%;
-		transform: translate(-50%, 0);
-		width: 100px; height: 25px;
-		border-radius: 6px;
-		margin: 30px 0px;
-		cursor: pointer;
-		outline: none;
-	}
-/*End user registration*/
-
 /*Start modal windows*/
 	/*start general styles*/
 .modal {
@@ -1012,7 +941,7 @@ footer {
 }
 	/*end general styles*/
 
-	/*start popup window*/
+/*Start popup window*/
 .popup {
 	/*property "display: none" added as a separate class "hide"*/
 	width: 100vw; height: 100vh;
@@ -1024,8 +953,9 @@ footer {
 	z-index: 99;
 }
 
-.popup-window{
-	width: 250px;
+.popup-content {
+	max-width: 350px;
+	min-width: 250px;
 	background-color: #373737;
 	box-sizing: border-box;
 	border: 3px solid brown;
@@ -1033,7 +963,7 @@ footer {
 	padding: 0px 20px;
 }
 
-.message{
+.popup-message {
 	text-align: center;
 	color: #ffffff;
 	font-family: Verdana, sans-serif;
@@ -1041,16 +971,7 @@ footer {
 	margin: 0px;
 	padding: 20px 10px 0px 10px;
 }
-
-.but-window{
-	display: block;
-	width: 100px; height: 25px;
-	border-radius: 6px;
-	margin: 20px auto;
-	cursor: pointer;
-	outline: none;
-}
-/*end popup window*/
+/*End popup window*/
 
 	.little{
 		width: 480px;

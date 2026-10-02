@@ -46,6 +46,7 @@
 					$response = mysqli_query($conn, $query); 
 					/* извлечение ассоциативного массива */
 					while ($result = mysqli_fetch_array($response)) {
+						// print_r($result);
 						[$article, $title, $price, $src] = $result;
 
 						echo <<<HTML

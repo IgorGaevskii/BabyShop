@@ -51,12 +51,17 @@
 
 			$answerServer['removed chad'][] = $article;
 
-			//We check for remaining chats by article
+			//Checking for the existence of other chats regarding this product.
 			$chats = "SELECT * FROM chat WHERE article = $article";
 			$reply = mysqli_query($conn, $chats);
-			$num_rows = mysqli_num_rows($reply);
+			$num_rows_chat = mysqli_num_rows($reply);
 
-			if (!$num_rows) {
+			//Checking if the product exists in other users' favorites.
+			$query_favorite = "SELECT * FROM user_favorites WHERE article = $article LIMIT 1";
+			$excerpt = mysqli_query($conn, $query_favorite);
+			$num_rows_favorite = mysqli_num_rows($excerpt);
+
+			if (!$num_rows_chat && !$num_rows_favorite) {
 				$request = "UPDATE product SET article = null, title = null, price = null, description = null, state = null, stock = null, display = null, time_display = null, top = null, id_user = null, id_category = null, id_subcategory = null WHERE article = '$article'";
 				
 				if ( mysqli_query($conn, $request) ) {
@@ -82,7 +87,9 @@
 				} else {
 					$arr_error['Remove goods from table product'] = 'fiasco';
 				}
-			} else {
+			} else if ($num_rows_favorite) {
+				// $request = "UPDATE product SET display = 'remove' WHERE article = '$article'";
+				// mysqli_query($conn, $request);
 				$arr_error['Remove goods from table sales'] = 'fiasco';
 			}
 		}

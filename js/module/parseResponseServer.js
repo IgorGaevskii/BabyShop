@@ -23,53 +23,44 @@ export default function parseResponseServer(answerServer) {
 		case 'forgotPassword':
 			const window_forgotPassword = document.querySelector('.content'),
 					form_forgotPassword = window_forgotPassword.querySelector('form'),
-					elem_descriptionForgotPassword = window_forgotPassword.querySelector('.description'),
+					field_emailUser_FP = form_forgotPassword.elements.email,
 					but_forgotPassword = window_forgotPassword.querySelector('#but-forgot_password');
 
 			if (answerServer.status == 'not found') {
-				elem_descriptionForgotPassword.innerHTML = answerServer.bodyAnswer;
 				field_emailUser_FP.value = '';
-			} else if (answerServer.status == 'error') {
-				elem_descriptionForgotPassword.textContent = answerServer.bodyAnswer;
-				but_forgotPassword.disabled = true;
-				clearFieldsForm(form_forgotPassword); //очищаю поля формы
 			} else {
-				elem_descriptionForgotPassword.textContent = answerServer.bodyAnswer;
 				but_forgotPassword.disabled = true;
 				clearFieldsForm(form_forgotPassword); //очищаю поля формы
 			}
+
+			showModalWindow(answerServer.bodyAnswer);
 			break;
 
-		case 'getTopGoods':
+		/*case 'getTopGoods':
 			let topGoods = answerServer.topGoods;
 			createCardTopGoods(topGoods);
-			break;
+			break;*/
 
 		case 'registrationMoveOne':
 			const window_registrationMoveOne = document.querySelector('.content'),
-					elem_descriptionMoveOne = window_registrationMoveOne.querySelector('.description'),
-					but_registrationMoveOne = window_registrationMoveOne.querySelector('#but-registration-move-one'),
-					form_registrationMoveOne = document.forms.registrationMoveOne;
+					form_registrationMoveOne = document.forms.registrationMoveOne,
+					field_emailUser_MO = form_registrationMoveOne.elements.email,
+					but_registrationMoveOne = window_registrationMoveOne.querySelector('#but-registration-move-one');
 
 			if (answerServer.status == 'match') {
-				elem_descriptionMoveOne.innerHTML = answerServer.bodyAnswer;
-				field_emailUser.value = '';
-			} else if (answerServer.status == 'error') {
-				elem_descriptionMoveOne.innerHTML = answerServer.bodyAnswer;
-				but_registrationMoveOne.disabled = true; //отключаю кнопку отправить
-				clearFieldsForm(form_registrationMoveOne); //очищаю поля формы
+				field_emailUser_MO.value = '';
 			} else {
-				elem_descriptionMoveOne.innerHTML = answerServer.bodyAnswer;
 				but_registrationMoveOne.disabled = true; //отключаю кнопку отправить
 				clearFieldsForm(form_registrationMoveOne); //очищаю поля формы
 			}
+
+			showModalWindow(answerServer.bodyAnswer);
 			break;
 			
 		case 'registrationMoveTwo':
-			const window_registrationMoveTwo = document.querySelector('.content'),
-					elem_descriptionMoveTwo = window_registrationMoveTwo.querySelector('.description'),
+			const window_registrationMoveTwo = document.querySelector('form'),
 					elem_сhooseAvatar = window_registrationMoveTwo.querySelector('.сhoose-avatar'),
-					but_registrationMoveTwo = window_registrationMoveTwo.querySelector('#but-registration-move-two'),
+					but_registrationMoveTwo = window_registrationMoveTwo.querySelector('.but-submit'),
 					form_registrationMoveTwo = document.forms.registrationMoveTwo;
 
 					if ( answerServer.hasOwnProperty('problem') ) {
@@ -78,9 +69,9 @@ export default function parseResponseServer(answerServer) {
 					}
 
 					if (answerServer.status == 'success') {
-						elem_descriptionMoveTwo.innerHTML = "<p>Дані успішно додані.<br><br>Для подальшої роботи на сайті пройдіть авторизацію.</p>";
+						but_registrationMoveTwo.disabled = true; //отключаем кнопку "отправить"
 						clearFieldsForm(form_registrationMoveTwo); //очищаю поля формы
-						but_registrationMoveTwo.disabled = true;
+						showModalWindow(answerServer.bodyAnswer);
 					}
 			break;
 
@@ -157,6 +148,7 @@ export default function parseResponseServer(answerServer) {
 			}
 
 			document.querySelector('.btn-buy').disabled = true;
+			document.querySelector('.btn-favorite').disabled = true;
 			break;
 		case 'deactivate':
 			/*функция изменяющая значение свойства display с show на hide в массиве 

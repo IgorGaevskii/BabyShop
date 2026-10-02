@@ -3,7 +3,9 @@ session_start();
 include 'connection bd.php';
 
 $answerServer = [];
+$answerServer['action'] = $_POST['action'];
 $token = mysqli_real_escape_string($conn, $_POST['token']);
+
 
 // 1. Получаем текстовые данные
 $name = mysqli_real_escape_string($conn, trim($_POST['first_name']));
@@ -25,7 +27,6 @@ if (isset($_FILES['user_avatar']) && $_FILES['user_avatar']['size'] > 0) {
         
         if (move_uploaded_file($file['tmp_name'], $upload_path)) {
             $path_file = "/pictures/user avatars/" . $new_name;
-            $answerServer['src'] = $path_file;
         }
     }
 }
@@ -74,6 +75,7 @@ if (!empty($name) && !empty($surname) && !empty($phone)) {
                   
                if ( mysqli_query($conn, $sql_address) ) {
                   $answerServer['status'] = 'success';
+                  $answerServer['bodyAnswer'] = 'Реєстрація успішно<br>завершена!';
                }
             }   
          }

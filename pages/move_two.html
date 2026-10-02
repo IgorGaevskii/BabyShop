@@ -1,92 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Реєстрація - Крок 2 з 2</title>
-	<link rel="stylesheet" href="/css/move_two.css">
-</head>
-<body>
-	<form name="registrationMoveTwo">
-		<h2 class="header-name">Реєстрація - Крок 2 з 2</h2>
-		<div class="slider">
-			<fieldset class="page-slider">
-				<label class="name-field">Ім'я</label>
-				<input type="text" name="first_name" autocomplete="off" class="field-registration">
-				<label class="name-field">Прізвище</label>
-				<input type="text" name="surname" autocomplete="off" class="field-registration">
-				<label class="name-field">Номер телефону</label>
-				<input type="tel" name="phone" autocomplete="off" maxlength="18" class="field-registration">
-				<button type="button" class="but-further">Далі</button>
-			</fieldset>
-			<fieldset class="page-slider">
-				<label class="name-field">Область</label>
-				<input type="text" name="region" class="field-registration">
-				<ul class="list-area"></ul>
-				<label class="name-field">Район або громада</label>
-				<input type="text" name="district" class="field-registration">
-				<ul class="list-area"></ul>
-				<label class="name-field">Місто</label>
-				<input type="text" name="city" class="field-registration">
-				<ul class="list-area"></ul>
-				<div class="button-group">
-					<button type="button" class="but-back">Назад</button>
-					<button type="button" class="but-further area">Далі</button>
-				</div>
-			</fieldset>
-			<fieldset class="page-slider avatar">
-				<div class="space-avatar">
-					<img src="/pictures/user avatars/empty avatar.jpg" alt="avatar" width="115" height="115">
-				</div>
-				<div class="сhoose-avatar">
-					<legend class="name-field">Зображення для профілю</legend>
-					<input type="button"
-							class="btn-choose-avatar"
-							value="Виберіть файл"
-					>
-					<input type="file" 
-							class="input-file hide"
-							name="user-avatar"
-					>
-					<span>Файл не вибрано</span>
-					<div class="extensions">
-						<p>Дозволені розширення: jpg, jpeg, png, gif.</p>
-					</div>
-				</div>
-				<div class="button-group">
-					<button type="button" class="but-back">Назад</button>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Реєстрація - Крок 2 з 2</title>
+		<link rel="stylesheet" href="/css/move_two.css">
+	</head>
+	<body>
+		<main class="content">
+			<h2 class="content-header">Реєстрація - Крок 2 з 2</h2>
+			<form class="content-form" name="registrationMoveTwo">
+				<fieldset class="form-page">
+					<label class="name-field">Ім'я</label>
+					<input type="text" name="first_name" autocomplete="off" class="field-registration">
+					<label class="name-field">Прізвище</label>
+					<input type="text" name="surname" autocomplete="off" class="field-registration">
+					<label class="name-field">Номер телефону</label>
+					<input type="tel" name="phone" autocomplete="off" maxlength="18" class="field-registration">
 					<button type="button" class="but-further">Далі</button>
-				</div>
-			</fieldset>
-			<fieldset class="page-slider check-data">
-				<img src="/pictures/user avatars/empty avatar.jpg" alt="avatar" width="115" height="115">
-				<p class="full-name">Ім'я Прізвище: 
-					<strong class="name"></strong> 
-					<strong class="surname"></strong>
-				</p>
-				<p class="phone">Телефон: <strong></strong></p>
-				<p class="region">Область: <strong></strong></p>
-				<p class="district">Район або громада: <strong></strong></p>
-				<p class="city">Місто: <strong></strong></p>
-				<div class="button-group">
-					<button type="button" class="but-back">Назад</button>
-					<button type="button" class="but-submit">Відправити</button>
-				</div>
-			</fieldset>
-		</div>
-	</form>
+				</fieldset>
+				<fieldset class="form-page">
+					<label class="name-field">Область</label>
+					<input type="text" name="region" class="field-registration">
+					<ul class="list-area"></ul>
+					<label class="name-field">Район або громада</label>
+					<input type="text" name="district" class="field-registration">
+					<ul class="list-area"></ul>
+					<label class="name-field">Місто</label>
+					<input type="text" name="city" class="field-registration">
+					<ul class="list-area"></ul>
+					<div class="button-group">
+						<button type="button" class="but-back">Назад</button>
+						<button type="button" class="but-further area">Далі</button>
+					</div>
+				</fieldset>
+				<fieldset class="form-page avatar">
+					<div class="space-avatar">
+						<img src="/pictures/user avatars/empty avatar.jpg" alt="avatar" width="115" height="115">
+					</div>
+					<div class="сhoose-avatar">
+						<legend class="name-field">Зображення для профілю</legend>
+						<input type="button"
+								class="btn-choose-avatar"
+								value="Виберіть файл"
+						>
+						<input type="file" 
+								class="input-file hide"
+								name="user_avatar"
+						>
+						<span>Файл не вибрано</span>
+						<div class="extensions">
+							<p>Дозволені розширення: jpg, jpeg, png, gif.</p>
+						</div>
+					</div>
+					<div class="button-group">
+						<button type="button" class="but-back">Назад</button>
+						<button type="button" class="but-further">Далі</button>
+					</div>
+				</fieldset>
+				<fieldset class="form-page check-data">
+					<img src="/pictures/user avatars/empty avatar.jpg" alt="avatar" width="115" height="115">
+					<p class="full-name">Ім'я Прізвище: 
+						<strong class="name"></strong> 
+						<strong class="surname"></strong>
+					</p>
+					<p class="phone">Телефон: <strong></strong></p>
+					<p class="region">Область: <strong></strong></p>
+					<p class="district">Район або громада: <strong></strong></p>
+					<p class="city">Місто: <strong></strong></p>
+					<div class="button-group">
+						<button type="button" class="but-back">Назад</button>
+						<button type="button" class="but-submit">Відправити</button>
+					</div>
+				</fieldset>
+			</form>
+		</main>
 
-	<section class="modal popup hide">
-		<div class="window popup-window">
-			<p class="message"></p>
-			<a href="http://babyshop.local">
-				<button class="but-window">
-					ок
-				</button>
-			</a>
-		</div>
-	</section>
-		
-	<script type="module" src="../js/move_two.js"></script>
-</body>
+		<section class="popup hide">
+			<div class="popup-content">
+				<p class="popup-message"></p>
+				<a href="http://babyshop.local">
+					<button class="small-but">ок</button>
+				</a>
+				<!-- <a href="http://babystore.website">
+					<button class="small-but">ок</button>
+				</a> -->
+			</div>
+		</section>
+			
+		<script type="module" src="../js/move_two.js"></script>
+	</body>
 </html>

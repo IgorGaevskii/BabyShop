@@ -4,37 +4,28 @@
 }
 
 body {
-	width: 100vw;
-	height: 100vh;
-	background-color: #ededed; /*Фоновый цвет страницы*/
+	width: 100vw; height: 100vh;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	background-color: #ededed; /*Фоновый цвет страницы*/
 }
 
 .content {
-	width: 960px;
+	width: 376px;
 	background-color: #fff;
 	box-sizing: border-box;
 	border: 3px solid brown;
-	border-radius: 6px;
+	border-radius: 10px;
 }
 
-.header-name {
+.content-header {
 	line-height: 80px;
 	font-size: 24px;
 	padding: 0px 30px;
 }
 
-.wrapper-form {
-	display: flex;
-	justify-content: flex-start;
-}
-
-form[name='registrationMoveOne'],
-form[name='registrationMoveTwo'],
-form[name='forgotPassword'] {
-	width: 476px;
+.content-form {
 	margin: 0px;
 	text-align: center;
 }
@@ -100,27 +91,6 @@ form[name='forgotPassword'] {
 .wrap-checkbox {
 	margin-top: 20px;
 }
-
-.area-сhoose-avatar {
-	margin-top: 20px;
-	border: none;
-}
-
-.btn-choose-avatar {
-	cursor: pointer;
-   width: 120px;
-   height: 25px;
-   border-radius: 6px;
-   box-shadow: 4px 4px 5px #c0c0c0;
-}
-
-.btn-choose-avatar:active {
-	box-shadow: none;
-}
-
-.extensions {
-	margin-top: 5px;
-}
 	
 .error {
 	padding-top: 5px;
@@ -128,32 +98,18 @@ form[name='forgotPassword'] {
 	color: red;
 }
 
-.vertical_stripe {
-	width: 2px; height: auto;
-	background-color: brown;
-}
-
-.description {
-	box-sizing: border-box;
-	width: 476px;
-	font-size: 18px;
-	padding: 0px 10px 0px 10px;
-}
-
-#but-registration-move-one, #but-registration-move-two,
-#but-forgot_password{
-	position: relative;
-	left: 50%;
-	transform: translate(-50%, 0);
+.small-but {
+	display: block;
 	width: 100px; height: 25px;
 	border-radius: 6px;
-	margin: 30px 0px;
+	margin: 25px auto;
 	cursor: pointer;
 	outline: none;
 }
 /*End user registration*/
 
-.modal {
+/*Start popup window*/
+.popup {
 	width: 100vw; height: 100vh;
 	display: flex;
 	justify-content: center;
@@ -164,16 +120,20 @@ form[name='forgotPassword'] {
 	z-index: 9999;
 }
 
-.hide{
+.hide {
 	display: none;
 }
 
-.popup-window {
-	width: 250px;
+.popup-content {
+	max-width: 350px;
+	min-width: 250px;
 	background-color: #373737;
+	box-sizing: border-box;
+	border: 3px solid brown;
+	border-radius: 6px;
 }
 
-.message{
+.popup-message {
 	text-align: center;
 	color: #ffffff;
 	font-family: Verdana, sans-serif;
@@ -182,11 +142,14 @@ form[name='forgotPassword'] {
 	padding: 20px 10px 0px 10px;
 }
 
-.but-window{
-	display: block;
-	width: 100px; height: 25px;
-	border-radius: 6px;
-	margin: 20px auto;
-	cursor: pointer;
-	outline: none;
+.popup-window a {
+	text-decoration: none;
+}
+/*End popup window*/
+
+/* Для устройств с шириной экрана меньше или равной 480px */
+@media (max-width: 480px) {
+	.content {
+		width: 90%;
+	}
 }

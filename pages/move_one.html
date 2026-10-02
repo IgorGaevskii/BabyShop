@@ -4,54 +4,56 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Регистрация - Шаг 1</title>
-		<link rel="stylesheet" href="../css/registration.css">
+		<link rel="stylesheet" href="../css/move_one.css">
 	</head>
 	<body>
 		<main class="content">
-			<h2 class="header-name">Реєстрація - Крок 1 з 2</h2>
-			<div class="wrapper-form">
-				<form name="registrationMoveOne">
-					<label class="name-field email">E-mail</label>
-					<input type="email" 
-							 name="email"
-							 class="field-registration"
-							 autocomplete="off"
-							 required>
-					<label class="name-field password">Пароль</label>
-					<div class="wrap-field-password">
-						<input
-							type="password" 
-							name="password_user"
-							class="field-password"
-							autocomplete="off"
-						>
-						<div class="eye-switch">
-							<img src="/pictures/icon show.png" alt="show password" width="18" height="18">
-						</div>
+			<h2 class="content-header">Реєстрація - Крок 1 з 2</h2>
+			<form class="content-form" name="registrationMoveOne">
+				<label class="name-field email">E-mail</label>
+				<input type="email" 
+						 name="email"
+						 class="field-registration"
+						 autocomplete="off"
+						 required>
+				<label class="name-field password">Пароль</label>
+				<div class="wrap-field-password">
+					<input
+						type="password" 
+						name="password_user"
+						class="field-password"
+						autocomplete="off"
+					>
+					<div class="eye-switch">
+						<img src="/pictures/icon show.png" alt="show password" width="18" height="18">
 					</div>
-					<label class="name-field repeatPassword">Повторити пароль</label>
-					<input type="password"
-							 name="repeatPassword"
-							 class="field-registration"
-							 autocomplete="off"
-							 required>
-					<div class="wrap-checkbox">
-						<input type="checkbox" name="consent">
-						Я підтверджую що ознайомлений(а) з <br> Політикою конфіденційності та даю згоду на обробку <br> моїх персональних даних
-					</div>
-				</form>
-				<div class="vertical_stripe"></div>
-				<div class="description"></div>
-			</div>
-			<button id="but-registration-move-one">Відправити</button>
+				</div>
+				<label class="name-field repeatPassword">Повторіть пароль</label>
+				<input type="password"
+						 name="repeatPassword"
+						 class="field-registration"
+						 autocomplete="off"
+						 required>
+				<div class="wrap-checkbox">
+					<input type="checkbox" name="consent">
+					Я підтверджую що ознайомлений(а) з <br> Політикою конфіденційності та даю згоду на <br> обробку моїх персональних даних
+				</div>
+				<button id="but-registration-move-one" class="small-but">Відправити</button>
+			</form>
 		</main>
 		
-		<section class="modal popup hide">
-			<div class="window popup-window">
-				<p class="message"></p>
-				<button class="but-window">ok</button>
+		<section class="popup hide">
+			<div class="popup-content">
+				<p class="popup-message"></p>
+				<a href="http://babyshop.local">
+					<button class="small-but">ok</button>
+				</a>
+				<!-- <a href="http://babystore.website">
+					<button class="small-but">ок</button>
+				</a> -->
 			</div>
 		</section>
+
 		<script type="module" src="../js/move_one.js"></script>
 	</body>
 </html>

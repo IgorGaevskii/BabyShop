@@ -1,5 +1,5 @@
 import {allWindow, window_userAds, window_userTrading} from "./variables.js";
-import {closeWindow, openWindow, modalWindow} from './open&closeWindow.js';
+import {closeWindow, openWindow} from './open&closeWindow.js';
 import Tab from "./tab.js";
 import {panelControl} from "./panel control.js";
 

@@ -2,61 +2,131 @@
 	session_start();
 	$action = $_POST['action'];//get from advert.js
 	
-	//Имя временной таблицы в которой хранятся пути к иконкам товара.
-	// $name_temp_table = 'tmp_table_'.$_POST['idUser'];
-	//имя временной папки с которой удаляем изображение
-	// $name_temp_folder = 'tmp_folder_'.$_POST['idUser'];
-
 	include 'connection bd.php';
 	include 'selectUserAdverts.php';
 	include 'selectTopGoods.php';
 
-	function getTempData() {
-		$arr = [];
-		$arr[] = 'tmp_table_'.$_SESSION['id'];//Имя временной таблицы в которой хранятся пути к иконкам товара.
-		$arr[] = 'tmp_folder_'.$_SESSION['id'];//Имя временной папки с которой удаляем изображение.
-		return $arr;
+	function readPhotoSlots() {
+		$slots = json_decode($_POST['photo_slots'] ?? '', true);
+		if (!is_array($slots) || count($slots) > 8) return false;
+		return array_pad(array_slice($slots, 0, 8), 8, null);
 	}
 
-	function deleteTempData($conn) {
-		[$name_temp_table, $name_temp_folder] = getTempData();
+	function getPhotoSources($conn, $article) {
+		$sources = [];
+		$stmt = mysqli_prepare($conn, "SELECT src FROM photo_product WHERE article = ? ORDER BY photo_sign DESC");
+		if (!$stmt) return false;
+		mysqli_stmt_bind_param($stmt, 's', $article);
+		mysqli_stmt_execute($stmt);
+		$result = mysqli_stmt_get_result($stmt);
+		while ($row = mysqli_fetch_assoc($result)) $sources[] = $row['src'];
+		mysqli_stmt_close($stmt);
+		return $sources;
+	}
 
-		if ( checkExistTempTable($conn) ) {
-				$request = "SELECT src_photo FROM ".$name_temp_table;
-				$answer = mysqli_query($conn, $request);
+	function savePhotoFiles($slots, $existingSources, &$newFilePaths) {
+		$sources = [];
+		$seenExisting = [];
+		$firstPhoto = true;
+		$upload = $_FILES['photo_files'] ?? null;
+		$allowedTypes = [
+			'image/jpeg' => 'jpg',
+			'image/png' => 'png',
+			'image/gif' => 'gif',
+			'image/webp' => 'webp'
+		];
+		$targetDirectory = __DIR__.'/../pictures/icon goods/';
 
-				while ( $result = mysqli_fetch_assoc($answer) ) {
-					$path_photo = $result['src_photo'];
+		if (!is_dir($targetDirectory) || !is_writable($targetDirectory)) return false;
+		$finfo = new finfo(FILEINFO_MIME_TYPE);
 
-					if ($path_photo) {
-						unlink($path_photo);
-					} else {
-						break;
-					}
-				}
+		foreach ($slots as $index => $slot) {
+			if ($slot === null) continue;
+			if (!is_array($slot) || empty($slot['type'])) return false;
 
-				$query = "DROP TABLE ".$name_temp_table;
-				$response = mysqli_query($conn, $query);
-
-				rmdir($_SERVER["DOCUMENT_ROOT"]."/pictures/".$name_temp_folder);
+			if ($slot['type'] === 'existing') {
+				$src = $slot['src'] ?? '';
+				if (!in_array($src, $existingSources, true) || in_array($src, $seenExisting, true)) return false;
+				$seenExisting[] = $src;
+				$sources[] = ['src' => $src, 'photo_sign' => $firstPhoto ? 1 : 0];
+				$firstPhoto = false;
+				continue;
 			}
+
+			if ($slot['type'] !== 'new' || (int)($slot['index'] ?? -1) !== $index ||
+				!$upload || !isset($upload['error'][$index]) || $upload['error'][$index] !== UPLOAD_ERR_OK ||
+				$upload['size'][$index] > 10 * 1024 * 1024 || !is_uploaded_file($upload['tmp_name'][$index])) {
+				return false;
+			}
+
+			$mimeType = $finfo->file($upload['tmp_name'][$index]);
+			if (!isset($allowedTypes[$mimeType])) return false;
+
+			$fileName = bin2hex(random_bytes(10)).'.'.$allowedTypes[$mimeType];
+			$destination = $targetDirectory.$fileName;
+			if (!move_uploaded_file($upload['tmp_name'][$index], $destination)) return false;
+
+			$newFilePaths[] = $destination;
+			$sources[] = [
+				'src' => '/pictures/icon goods/'.$fileName,
+				'photo_sign' => $firstPhoto ? 1 : 0
+			];
+			$firstPhoto = false;
+		}
+
+		return count($sources) ? $sources : false;
 	}
 
+	function replacePhotoRecords($conn, $article, $sources, $deleteArticle = null) {
+		$delete = mysqli_prepare($conn, "DELETE FROM photo_product WHERE article = ?");
+		if (!$delete) return false;
+		$articleToDelete = $deleteArticle ?? $article;
+		mysqli_stmt_bind_param($delete, 's', $articleToDelete);
+		$ok = mysqli_stmt_execute($delete);
+		mysqli_stmt_close($delete);
+		if (!$ok) return false;
+
+		$insert = mysqli_prepare($conn, "INSERT INTO photo_product (article, photo_sign, src) VALUES (?, ?, ?)");
+		if (!$insert) return false;
+		foreach ($sources as $photo) {
+			mysqli_stmt_bind_param($insert, 'sis', $article, $photo['photo_sign'], $photo['src']);
+			if (!mysqli_stmt_execute($insert)) {
+				mysqli_stmt_close($insert);
+				return false;
+			}
+		}
+		mysqli_stmt_close($insert);
+		return true;
+	}
+
+//удаление товара из базы данных продавцем
 	function deleteAdvert($conn) {
 		$arr_articles = explode(",", $_POST['data']);
 		$arr_error = [];
 		$answerServer = [];
 
-		foreach ($arr_articles as $article) {
-			/*проверяем есть записи по данному товару в чате:
-				yes: ставлю в таблице product property display "remove"
-				no: goods remove
-			*/
+		function checkChat($conn, $article) {
 			$response = mysqli_query($conn, "SELECT * FROM message WHERE article = '$article'");
-			$num_rows = mysqli_num_rows($response);
 
-			if ($num_rows) {
+			if ( mysqli_num_rows($response) ) {
 				mysqli_query($conn, "UPDATE chat SET seller_token = 'remove' WHERE article = '$article'");
+				return true;
+			}
+		}
+
+		function checkFavorite($conn, $article) {
+			$response = mysqli_query($conn, "SELECT * FROM user_favorites WHERE article = '$article'");
+
+			if ( mysqli_num_rows($response) ) return true;
+		}
+
+		foreach ($arr_articles as $article) {
+			/*проверяем есть записи по товару в чате или в избранном:
+				yes: ставлю в таблице product property display "remove"
+				no: удаляем товар из базы
+			*/
+
+			if ( checkChat($conn, $article) || checkFavorite($conn, $article) ) {
 				mysqli_query($conn, "UPDATE product SET display = 'remove' WHERE article = '$article'");
 			} else {
 				$answerServer['sing'] = 'exists chat';
@@ -103,9 +173,9 @@
 		/* закрытие соединения */
 		mysqli_close($conn);
 	}
+//конец удаления
 
 	function updateAdvert($conn) {
-		$id_user = $_POST['idUser']; //get from advert.js
 		$id_category = $_POST['id_category'];
 		$id_subcategory = $_POST['id_subcategory'];
 		$titleProduct = $_POST['name_goods'];
@@ -116,11 +186,15 @@
 		$timeDisplayProduct = $_POST['time_display'];
 		$topProduct = $_POST['radio_goods'];
 		$old_article = $_POST['article'];
-
-		$arr_error = [];
+		$slots = readPhotoSlots();
 		$answerServer = [];
+		$newFilePaths = [];
+		$oldSources = getPhotoSources($conn, $old_article);
 
-		[$name_temp_table, $name_temp_folder] = getTempData();
+		if ($slots === false || $oldSources === false || !count(array_filter($slots))) {
+			echo json_encode(['status' => 'fiasco']);
+			return;
+		}
 
 		if ( strlen($id_subcategory) == 1 ) {
 			$codeSubcategoryProduct = '0'.$id_subcategory;
@@ -132,48 +206,32 @@
 		$answerServer['product_id'] = $product_id;
 
 		$articleProduct = $id_category.''.$codeSubcategoryProduct.''.$product_id;
-		//Конец формирования кода товара
-		$query = "UPDATE product SET article='$articleProduct', title='$titleProduct', price='$priceProduct', description='$descriptionProduct', state='$state_goods', stock='$stock_goods', time_display='$timeDisplayProduct', top='$topProduct' WHERE article='$old_article'";
+		mysqli_begin_transaction($conn);
+		$query = "UPDATE product SET article=?, title=?, price=?, description=?, state=?, stock=?, time_display=?, top=? WHERE article=? AND id_user=?";
+		$stmt = mysqli_prepare($conn, $query);
+		$userId = (int)$_SESSION['id'];
+		$updated = false;
+		if ($stmt) {
+			mysqli_stmt_bind_param($stmt, 'sssssssssi', $articleProduct, $titleProduct, $priceProduct,
+				$descriptionProduct, $state_goods, $stock_goods, $timeDisplayProduct, $topProduct, $old_article, $userId);
+			$updated = mysqli_stmt_execute($stmt);
+			mysqli_stmt_close($stmt);
+		}
 
-		if ( mysqli_query($conn, $query) ) {
-			//remove all records about goods from the table photo_product
-			$request = "DELETE FROM photo_product WHERE article = '$old_article'";
-			$arr_error[] = ( mysqli_query($conn, $request) ) ? 'success': 'fiasco';
+		$photos = $updated ? savePhotoFiles($slots, $oldSources, $newFilePaths) : false;
+		$photosSaved = $photos !== false && replacePhotoRecords($conn, $articleProduct, $photos, $old_article);
+		if (!$photosSaved) {
+			mysqli_rollback($conn);
+			foreach ($newFilePaths as $path) if (is_file($path)) unlink($path);
+			echo json_encode(['status' => 'fiasco']);
+			return;
+		}
+		mysqli_commit($conn);
 
-			$query = "SELECT id, src_photo FROM ".$name_temp_table;
-			$response = mysqli_query($conn, $query);
-
-			while($result = mysqli_fetch_assoc($response)) {
-				$nameFile = substr(strrchr($result['src_photo'], '/'), 1);
-
-				if ($nameFile) {
-					//переносим изображения товара из временной папки в постоянную
-					rename($result['src_photo'], "../pictures/icon goods/".$nameFile);
-					//
-					$src = "/pictures/icon goods/".$nameFile;
-
-					if ($result['id'] == 1) {
-						$photo_sign = 1;
-					} else {
-						$photo_sign = 0;
-					}
-					//insert updated goods records in the table
-					$query1 = "INSERT INTO photo_product (article, photo_sign, src) 
-							VALUES ('$articleProduct', '$photo_sign', '$src')";
-					$arr_error[] = ( mysqli_query($conn, $query1) ) ? 'success': 'fiasco';
-
-				} else {
-					break;
-				}
-			}
-			//remove temp table
-			$query = "DROP TABLE ".$name_temp_table;
-			$response = mysqli_query($conn, $query);
-			//remove temp folder 
-			rmdir($_SERVER["DOCUMENT_ROOT"]."/pictures/".$name_temp_folder);
-
-		} else {
-			$arr_error[] = 'fiasco';
+		$keptSources = array_column($photos, 'src');
+		foreach ($oldSources as $src) {
+			$filePath = __DIR__.'/..'.$src;
+			if (!in_array($src, $keptSources, true) && is_file($filePath)) unlink($filePath);
 		}
 
 		//select adverts user
@@ -181,16 +239,10 @@
 		$answerServer['advertsUser'] = $arr;
 
 		$sampleTopGoods = selectTopGoods($conn);
-		$arr_error['Get top goods'] = $sampleTopGoods['error'];
 		$answerServer['topGoods'] = $sampleTopGoods['topGoods'];
-
-		if (in_array('fiasco', $arr_error)) {
-			$answerServer['status'] = 'fiasco';
-		} else {
-			$answerServer['status'] = 'success';
-			$answerServer['action'] = $_POST['action'];
-			echo json_encode($answerServer);
-		}
+		$answerServer['status'] = 'success';
+		$answerServer['action'] = $_POST['action'];
+		echo json_encode($answerServer);
 		/* закрытие соединения */
 		mysqli_close($conn);
 	}
@@ -208,15 +260,18 @@
 		$topProduct = $_POST['radio_goods'];
 		$display = 'show';
 
-		$arr_error = [];
 		$answerServer = [];
-		[$name_temp_table, $name_temp_folder] = getTempData();
+		$newFilePaths = [];
+		$slots = readPhotoSlots();
+		if ($slots === false || !count(array_filter($slots))) {
+			echo json_encode(['status' => 'fiasco']);
+			return;
+		}
 
 		function getId($conn) {
 			$request = "SELECT id, article FROM product";
 		
 			if ( $response = mysqli_query($conn, $request) ) {
-				$arr_error['Number rows'] = 'success';
 				$number_rows = mysqli_num_rows($response);
 
 				if ($number_rows != 0) {
@@ -237,9 +292,7 @@
 					$obj[] = 'insert';
 					return $obj;
 				}
-			} else {
-				$arr_error['Number rows'] = 'fiasco';
-			}
+			} else return false;
 
 			mysqli_free_result($response);
 		}
@@ -251,7 +304,12 @@
 			$codeSubcategoryProduct = $id_subcategory;
 		}
 
-		[$id, $type_query] = getId($conn);
+		$idData = getId($conn);
+		if (!$idData) {
+			echo json_encode(['status' => 'fiasco']);
+			return;
+		}
+		[$id, $type_query] = $idData;
 		$article_goods = $id_category.''.$codeSubcategoryProduct.''.$id;
 
 		if ($type_query === 'update') {
@@ -260,46 +318,17 @@
 			$request = "INSERT INTO product (id, article, title, price, description, state, stock, display, top, id_user, time_display, id_category, id_subcategory) VALUES ('$id', '$article_goods', '$titleProduct', '$priceProduct', '$descriptionProduct', '$state_goods', '$stock_goods', '$display', '$topProduct', ".$_SESSION['id'].", '$timeDisplayProduct', '$id_category', '$id_subcategory')";
 		}
 
-		if (mysqli_query($conn, $request)) {
-			$arr_error['Insert or update goods'] = 'success';
-			//choose all src from temp table
-			$query ="SELECT id, src_photo FROM ".$name_temp_table;
-			$response = mysqli_query($conn, $query);
-		
-			while($result = mysqli_fetch_assoc($response)) {
-				$nameFile = substr(strrchr($result['src_photo'], '/'), 1);
-
-				if ($nameFile) {
-					//переносим изображения товара из временной папки в постоянную
-					// rename( $_SERVER["DOCUMENT_ROOT"]."/".$result['src_photo'], $_SERVER["DOCUMENT_ROOT"]."/pictures/icon goods/".$nameFile);
-					rename($result['src_photo'], "../pictures/icon goods/".$nameFile);
-					//
-					$src = "/pictures/icon goods/".$nameFile;
-
-					if ($result['id'] == 1) {
-						$photo_sign = 1;
-					} else {
-						$photo_sign = 0;
-					}
-					//insert product image data into a permanent table
-					$query1 = "INSERT INTO photo_product (article, photo_sign, src) 
-							VALUES ('$article_goods', '$photo_sign', '$src')";
-
-					if (!mysqli_query($conn, $query1)) echo 'Код ошибка' .mysqli_errno($conn);
-
-				} else {
-					break;
-				}
-			}
-			//remove temp table
-			$query = "DROP TABLE ".$name_temp_table;
-			$response = mysqli_query($conn, $query);
-			//remove temp folder 
-			rmdir($_SERVER["DOCUMENT_ROOT"]."/pictures/".$name_temp_folder);
-
-		} else {
-			$arr_error['Insert or update goods'] = 'fiasco';
+		mysqli_begin_transaction($conn);
+		$productSaved = mysqli_query($conn, $request);
+		$photos = $productSaved ? savePhotoFiles($slots, [], $newFilePaths) : false;
+		$photosSaved = $photos !== false && replacePhotoRecords($conn, $article_goods, $photos);
+		if (!$photosSaved) {
+			mysqli_rollback($conn);
+			foreach ($newFilePaths as $path) if (is_file($path)) unlink($path);
+			echo json_encode(['status' => 'fiasco']);
+			return;
 		}
+		mysqli_commit($conn);
 
 		//select adverts user
 		$arr = selectUserAdverts($conn);
@@ -307,194 +336,16 @@
 
 		if ((bool) $topProduct) {
 			$sampleTopGoods = selectTopGoods($conn);
-			$arr_error['Get top goods'] = $sampleTopGoods['error'];
 			$answerServer['topGoods'] = $sampleTopGoods['topGoods'];
 		}
 
-		if ( in_array('fiasco', array_values($arr_error)) ) {
-			$answerServer['status'] = 'fiasco';
-			print_r($arr_error);
-		} else {
-			$answerServer['status'] = 'success';
-			$answerServer['action'] = $_POST['action'];
-			echo json_encode($answerServer);
-		}
+		$answerServer['status'] = 'success';
+		$answerServer['action'] = $_POST['action'];
+		echo json_encode($answerServer);
 		/* закрытие соединения */
 		mysqli_close($conn);
 	}
 /*-----end-----*/
-
-	function chooseTempSrc($conn) {
-		[$name_temp_table] = getTempData();
-		//выбираем все ссылки и передаем в браузер клиенту
-		$arr = [];
-		$query = "SELECT src_photo FROM ".$name_temp_table;
-		$response = mysqli_query($conn, $query);
-		
-		while ( $result = mysqli_fetch_assoc($response) ) {
-			$arr[] = $result['src_photo'];
-		}
-
-		return $arr;
-	}
-
-	function createTempDirectory() {
-		[, $name_temp_folder] = getTempData();
-		if (mkdir('../pictures/'.$name_temp_folder)) {
-		}
-	}
-
-	function appendPhoto($src_photo, $conn, $num_but) {
-		[$name_temp_table] = getTempData();
-		//Вставляем путь к изображению в image_table
-		$query = "UPDATE ".$name_temp_table." SET src_photo = '$src_photo' WHERE id = '$num_but'";
-
-		if (!mysqli_query($conn, $query)) {
-			echo "Error: Image not added to table". mysqli_error($conn);
-		}
-	}
-
-	function checkExistTempTable($conn) {
-		[$name_temp_table] = getTempData();
-		//проверяю существование таблицы?
-		$query = "SHOW TABLES LIKE '$name_temp_table'";
-		$response = mysqli_query($conn, $query);
-		$num_row = mysqli_num_rows($response);
-		return $num_row;
-	}
-
-	function removeTempData($conn) {
-		[$name_temp_table, $name_temp_folder] = getTempData();
-		$arr_error = [];
-
-		if ($_POST['status'] == 'newAdvert') {
-			if ( checkExistTempTable($conn)) {
-				$request = "SELECT src_photo FROM ".$name_temp_table;
-				$answer = mysqli_query($conn, $request);
-
-				while ($result = mysqli_fetch_assoc($answer)) {
-					$path_photo = $result['src_photo'];
-					if ($path_photo) {
-						$query = "UPDATE ".$name_temp_table." SET src_photo = '' WHERE src_photo ='$path_photo'";
-						$response = mysqli_query($conn, $query);
-						unlink($path_photo);
-					}
-				}
-
-				$array = chooseTempSrc($conn);
-				$query = "DROP TABLE ".$name_temp_table;
-				$response = mysqli_query($conn, $query);
-
-				rmdir($_SERVER["DOCUMENT_ROOT"]."/pictures/".$name_temp_folder);
-
-				echo json_encode($array);
-			}
-		} else {
-			$article = $_POST['article'];
-			$query = "SELECT id, src_photo FROM ".$name_temp_table;
-
-			if ( $response = mysqli_query($conn, $query) ) {
-				$arr_error['Get id and src file'] = 'success';
-
-				while($result = mysqli_fetch_assoc($response)) {
-					$nameFile = substr(strrchr($result['src_photo'], '/'), 1);
-					$path_photo = $result['src_photo'];
-
-					if ($nameFile) {
-						//переносим изображения товара из временной папки в постоянную
-						if (!rename($result['src_photo'], "../pictures/icon goods/".$nameFile)) {
-							$arr_error['Move file'] = 'false';
-						}
-						//
-						$src = "/pictures/icon goods/".$nameFile;
-
-						if ($result['id'] == 1) {
-							$photo_sign = 1;
-						} else {
-							$photo_sign = 0;
-						}
-						
-						$query1 = "INSERT INTO photo_product (article, photo_sign, src) 
-								VALUES ('$article', '$photo_sign', '$src')";
-						mysqli_query($conn, $query1);
-
-						$query = "UPDATE ".$name_temp_table." SET src_photo = '' WHERE src_photo ='$path_photo'";
-						mysqli_query($conn, $query);
-
-					} else {
-						break;
-					}
-				}
-				$array = chooseTempSrc($conn);
-				//remove temp table
-				$query = "DROP TABLE ".$name_temp_table;
-				$response = mysqli_query($conn, $query);
-				//remove temp folder 
-				rmdir($_SERVER["DOCUMENT_ROOT"]."/pictures/".$name_temp_folder);
-				// echo var_export($arr_error);
-				echo json_encode($array);
-			} else {
-				$arr_error['Get id and src file'] = 'fiasco';
-			}
-		}
-	}
-
-	function deletePhoto($conn) {
-		[$name_temp_table, $name_temp_folder] = getTempData();
-		$num_but = $_POST['numBut']; //get from advert.js
-
-		$query = "SELECT src_photo FROM ".$name_temp_table." WHERE id='$num_but'";
-		$response = mysqli_query($conn, $query);
-		$result = mysqli_fetch_assoc($response);
-		$path_file = $result['src_photo'];
-
-		$query = "UPDATE ".$name_temp_table." SET src_photo = '' WHERE id='$num_but'";
-		$response = mysqli_query($conn, $query);
-
-		unlink($path_file);
-
-		echo json_encode( chooseTempSrc($conn) );
-	}
-
-	function addPhoto($conn) {
-		[$name_temp_table, $name_temp_folder] = getTempData();
-		$num_but = $_POST['numBut']; //get from new advert.js
-
-	   if ( !checkExistTempTable($conn) ) {//check for existence of temporary table
-	    	//if table does not exists
-	    	//1 create table
-	    	$query = "CREATE TABLE ".$name_temp_table." (
-				id TINYINT PRIMARY KEY AUTO_INCREMENT,
-				src_photo VARCHAR(50) NUll )";
-
-			if ( mysqli_query($conn, $query) ){
-				
-				for ($i = 1; $i <= 8; $i++) {
-					$query = "INSERT INTO ".$name_temp_table."(src_photo) VALUES ('')";
-					$response = mysqli_query($conn, $query);
-				}
-			//2 create folder where will move upload image
-			createTempDirectory();
-
-			} else {  
-				echo "Table is not created successfully\n";
-			}
-
-	   }
-	   //move image in folder
-		$whence_move = $_FILES['photo']['tmp_name'];
-		$where_move = '../pictures/'.$name_temp_folder.'/'.$num_but.'_'.$_FILES['photo']['name'];
-
-		if ( move_uploaded_file($whence_move, $where_move) ) {
-			//append image in temp table
-			$path_file = $where_move;
-			appendPhoto($path_file, $conn, $num_but);
-		} else {
-			echo "Error move uploaded file\n";
-		}
-
-		echo json_encode( chooseTempSrc($conn) );
-	}
 
 	function changeDisplayAdvert($conn) {
 		$array = explode(",", $_POST['data']);
@@ -556,15 +407,6 @@
 		case 'activate':
 			changeDisplayAdvert($conn);
 			break;
-		case 'appendPhoto':
-			addPhoto($conn);
-			break;
-		case 'removePhoto':
-			deletePhoto($conn);
-			break;
-		case 'removeTempData':
-			removeTempData($conn);
-			break;
 		case 'submitAdvert':
 			placeAdvert($conn);
 			break;
@@ -573,9 +415,6 @@
 			break;
 		case 'delete':
 			deleteAdvert($conn);
-			break;
-		case 'pageReload':
-			deleteTempData($conn);
 			break;
 	}
 ?>

@@ -1,10 +1,10 @@
 export const allWindow = document.querySelectorAll('.content'),
 	window_mainContent = document.querySelector('.main-content'),
 	// page card goods
-	btn_favorite = window_mainContent.querySelector('.btn-favorite') || null, //кнопка со страницы купить
+	btn_favorite = window_mainContent ? window_mainContent.querySelector('.btn-favorite') : null, //кнопка со страницы купить
 	//window new advert
 	window_newAdvert = document.querySelector('.new_advert'),
-	headingName = window_newAdvert?.querySelector('.header-name'),
+	headingName = window_newAdvert?.querySelector('.content-header'),
 	form_newAd = document.forms.new_advert,
 	nameGoodsInput = form_newAd?.elements.name_goods,
 	priceGoodsInput = form_newAd?.elements.price_goods,
@@ -15,10 +15,10 @@ export const allWindow = document.querySelectorAll('.content'),
 	inputHatInactiveAds = window_userAds?.querySelector('.inactive_ads input'),
 	//window user trading 
 	window_userTrading = document.querySelector('.user-trading'),
-	but_crossUserTrading = window_userTrading?.querySelector('.header-cross'),
+	but_crossUserTrading = window_userTrading?.querySelector('.header-cross') || null,
 	input_hatMySales = window_userTrading?.querySelector('.my-sales input'),
 	input_hatMyPurchases = window_userTrading?.querySelector('.my-purchases input'),
-	allBut_deleteTrading = window_userTrading?.querySelectorAll('.but_delete_trading'),
+	allBut_deleteTrading = window_userTrading?.querySelectorAll('.but_delete_trading') || [],
 	elem_soldGoodsList = window_userTrading?.querySelector('.sold-goods-list'),
 	elem_purchasedGoodsList = window_userTrading?.querySelector('.purchased-goods-list'),
 	window_reviewAboutSeller = document.querySelector('.review-about-seller'),
@@ -53,10 +53,10 @@ export const allWindow = document.querySelectorAll('.content'),
 	//window cabinet
 	window_cabinet = document.getElementById('cabinet'),
 	elem_numberNewMessages = window_cabinet?.querySelector('.number-messages'),
-	allItemsMenu = document.querySelectorAll('.menu-item'),
+	allItemsMenu = document.querySelectorAll('.menu-item');
 	//window popup
-	popupModal = document.querySelector('.popup'),
-	message = popupModal.querySelector('.message'),
-	but_popup = popupModal.querySelector('.but-window');
+	// popupModal = document.querySelector('.popup'),
+	// message = popupModal.querySelector('.message'),
+	// but_popup = popupModal.querySelector('.but-window');
 
-// console.log(btn_favorite);
+// console.log(allBut_deleteTrading);

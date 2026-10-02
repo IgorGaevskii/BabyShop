@@ -67,30 +67,34 @@ if ( $response = mysqli_query($conn, $query) ) {
 				$sql = "SELECT DISTINCT article FROM chat WHERE id_buyer = $id AND buyer_token = 'show'";
 				$response = mysqli_query($conn, $sql);
 
-				$i = 0;
-				while ( [$article] = mysqli_fetch_row($response) ) {
+				if ( mysqli_num_rows($response) ) {
 
-					//выбираем данные о товаре
-					$query = "SELECT product.article, product.title, product.price, product.id_user, photo_product.src FROM product JOIN photo_product ON photo_product.article = product.article 
-						WHERE product.article = '$article' AND photo_product.photo_sign = 1";
-					$outcome = mysqli_query($conn, $query);
-					$answer = mysqli_fetch_assoc($outcome);
-					$id_partner = $answer['id_user'];
-					$arr_temp[$i]['data_goods'] = $answer;
-					mysqli_free_result($outcome);
+					$i = 0;
+					while ( [$article] = mysqli_fetch_row($response) ) {
 
-					//выбираем данные о продавце
-					$ask ="SELECT id, user, phone, src_avatar FROM users WHERE id = '$id_partner'";
-					$refund = mysqli_query($conn, $ask);
-					$reply = mysqli_fetch_assoc($refund);
-					$arr_temp[$i]['data_partner'][] = $reply;
-					mysqli_free_result($refund);
-					$arr_articles_chat[] = $article;
-					$i++;
+						//выбираем данные о товаре
+						$query = "SELECT product.article, product.title, product.price, product.id_user, photo_product.src FROM product JOIN photo_product ON photo_product.article = product.article 
+							WHERE product.article = '$article' AND photo_product.photo_sign = 1";
+						$outcome = mysqli_query($conn, $query);
+						$answer = mysqli_fetch_assoc($outcome);
+						$id_partner = $answer['id_user'];
+						$arr_temp[$i]['data_goods'] = $answer;
+						mysqli_free_result($outcome);
+
+						//выбираем данные о продавце
+						$ask ="SELECT id, user, phone, src_avatar FROM users WHERE id = '$id_partner'";
+						$refund = mysqli_query($conn, $ask);
+						$reply = mysqli_fetch_assoc($refund);
+						$arr_temp[$i]['data_partner'][] = $reply;
+						mysqli_free_result($refund);
+						$arr_articles_chat[] = $article;
+						$i++;
+					}
+
+					if ($arr_temp != []) $arr_data['chatUser'] = $arr_temp;
+				} else {
+					$arr_data['chat'] = 'empty';
 				}
-
-				if ($arr_temp != []) $arr_data['chatUser'] = $arr_temp;
-
 			} else {
 				$answerServer['status'] = 'not match';
 			}

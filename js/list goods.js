@@ -1,6 +1,6 @@
 import {createCardGoods} from "./user advert.js";
 import {createCardTradingUser} from "./user trading.js";
-import {obj_window_chat, createCardGhat} from "./user chat.js";
+import {createCardGhat} from "./user chat.js";
 import {changeAdvert} from "./new advert.js";
 
 //dynamically load html markup of registration forms

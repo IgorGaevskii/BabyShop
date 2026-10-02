@@ -15,9 +15,9 @@
 		<footer></footer>
 
 		<section class="popup hide">
-			<div class="popup-window">
-				<p class="message"></p>
-				<button class="but-window">ok</button>
+			<div class="popup-content">
+				<p class="popup-message"></p>
+				<button class="small-but">ok</button>
 			</div>
 		</section>
 
@@ -290,7 +290,7 @@
 
 
 		<!-- site-wide favorites handlers -->
-		<script type="module" src="..js/favorites.js"></script>
+		<script type="module" src="../js/favorites.js"></script>
 
 	</body>
 </html>

@@ -75,23 +75,6 @@ export function createCardGoods() {
 		let input = document.createElement('input');
 		input.type = 'checkbox';
 
-		input.onclick = function() {
-			let boxAds = this.closest('.box');
-			let inputHat = boxAds.previousElementSibling.querySelector('input');
-
-			if (!this.checked && inputHat.checked) {
-				inputHat.checked = false;
-			} else {
-				
-				for (let elem of boxAds.querySelectorAll('input')) {
-
-					if (!elem.checked) return;
-				}
-				
-				inputHat.checked = true;
-			}
-		}
-
 		div.append(input);
 		div.insertAdjacentHTML('beforeend', 
 			`<img src="${advertsUser[i].data_goods.src}" alt="фото" width="90" height="90">
@@ -122,24 +105,19 @@ export function changeDisplayAdverts() {
 
 			//если в топе существует товар то удаляем с экрана
 			if ( window_mainContent.classList.contains('top-card') ) {
-				let allCard = window_mainContent.querySelectorAll('.card');
+				let card = window_mainContent.querySelector(`.card[data-article="${article}"]`);
 
-				allCard.forEach(item => {
-					let elem = item.querySelector('span.code-number');
-					let code = elem.textContent;
-
-					if (code == article) item.remove();
-				})
+				if (card) card.remove();
 			}
 		} else {
 			advertsUser[index].data_goods.display = 'show';
 
 			if (window_mainContent.classList.contains('top-card') && advertsUser[index].data_goods.top == '1') {
 				window_mainContent.insertAdjacentHTML('beforeend', 
-					`<div class='card'>
+					`<div class='card' data-article='${advertsUser[index].data_goods.article}'>
 						<img src='${advertsUser[index].data_goods.src}' width='230' height='230'>
 						<p class="card__name">${advertsUser[index].data_goods.title}</p>
-						<p class="card__code">Код товара: <span class="code-number">${advertsUser[index].data_goods.article}</span></p>
+						<p class="card__code">Код товара: ${advertsUser[index].data_goods.article}</p>
 						<p class="card__price">Цена: ${advertsUser[index].data_goods.price} гр</p>
 					</div>`);
 			}
@@ -190,18 +168,24 @@ async function exchangeData(formData, obj, url) {
 
 // Функция для добавления обработчика событий
 [...but_displayAdvert, ...but_editAdvert, but_deleteAdvert].forEach(item => {
-	item.onclick = function() {
-		panelControl.pressedButton = this;//file panel control.js
-		panelControl.checkExistenceMarkedInputs();//file panel control.js
+	if (item) {
+		item.onclick = function() {
+			panelControl.pressedButton = this;//file panel control.js
+			panelControl.checkExistenceMarkedInputs();//file panel control.js
+		}
 	}
+	
 })
 
-but_crossUserAds.onclick = function() {
-	closeWindow(window_userAds);
-	openWindow(window_mainContent);
-	//убираем галочки с input
-	panelControl.deselectImputs(window_userAds);
+if (but_crossUserAds) {
+	but_crossUserAds.onclick = function() {
+		closeWindow(window_userAds);
+		openWindow(window_mainContent);
+		//убираем галочки с input
+		panelControl.deselectImputs(window_userAds);
+	}
 }
+
 
 if (inputHatActiveAds) {
     inputHatActiveAds.onclick = manageCheckboxes;

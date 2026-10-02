@@ -5,9 +5,6 @@ import clearFieldsForm from "./module/clearFieldsForm.js";
 import {createCardGoods} from "./user advert.js";
 import {panelControl} from "./module/panel control.js";
 import showModalWindow from "./module/showModalWindow.js";
-import {obj_window_trading} from "./user trading.js";
-import {obj_window_chat} from "./user chat.js";
-import {interval, startSetInterval} from "./module/long query.js";
 
 const elem_addAdvertCategory = document.querySelector('.addAdvert_category'),
 	allOption_addAdvertCategory = elem_addAdvertCategory ? elem_addAdvertCategory.getElementsByTagName('option') : [],
@@ -25,6 +22,8 @@ const elem_addAdvertCategory = document.querySelector('.addAdvert_category'),
 	header = document.querySelector('header'),
 	containerActiveAds = document.querySelector('.container_active_ads'),
 	containerInactiveAds = document.querySelector('.container_inactive_ads');
+
+const photoSlots = Array.from({length: allBut_addPhoto.length}, () => null);
 
 let sendAdvert = {
     validateUkrainian(value) {// Функция проверки на украинские буквы и знаки препинания
@@ -84,24 +83,25 @@ let sendAdvert = {
 			}
 		}
 
-		let arr_valueDatasetBut = Array.from(allBut_addPhoto).map(item => item.dataset.action);
-
-		if ( !arr_valueDatasetBut.includes('removePhoto') ) {
-			showModalWindow(`Вставте пожалуйста изображение`);
+		if ( !photoSlots.some(Boolean) ) {
+			showModalWindow('Додайте принаймні одне фото товару.');
 			return;
 		}
 
-		// let indexEmtyButton = arr_valueDatasetBut.findIndex(item => item == 'appendPhoto');
+		const firstEmptyPhotoIndex = photoSlots.findIndex(slot => !slot);
+		if (firstEmptyPhotoIndex !== -1 && photoSlots.slice(firstEmptyPhotoIndex).some(Boolean)) {
+			showModalWindow(`Будь ласка, <br>вставте зображення<br> товару в ${firstEmptyPhotoIndex + 1} поле.`);
+			return;
+		}
 
-		// if (indexEmtyButton != -1) {
-		// 	let new_arr = arr_valueDatasetBut.slice(indexEmtyButton + 1);
-		// 	console.log(new_arr);
-		// 	debugger;
-		// 	if ( new_arr.includes('removePhoto') ) {
-		// 		showModalWindow(`Вставте пожалуйста изображение в ${indexEmtyButton + 1} поле.`);
-		// 		return;
-		// 	}
-		// }
+		formData.append('photo_slots', JSON.stringify(photoSlots.map(slot => {
+			if (!slot) return null;
+			return slot.file ? {type: 'new', index: slot.index} : {type: 'existing', src: slot.src};
+		})));
+
+		photoSlots.forEach((slot, index) => {
+			if (slot?.file) formData.append(`photo_files[${index}]`, slot.file, slot.file.name);
+		});
 
 		sendAd(formData); 
 	}
@@ -204,14 +204,38 @@ let blockPhoto = {
 	indexButton: '',
 
 	insertPhoto(arr) {
-		allBut_addPhoto.forEach((item, index) => {
+		this.clear();
+		(arr || []).slice(0, allBut_addPhoto.length).forEach((src, index) => {
+			if (src) photoSlots[index] = {src, existing: true};
+		});
+		this.render();
+	},
 
-			if (!arr[index]) return;
+	clear() {
+		photoSlots.forEach(slot => {
+			if (slot?.preview) URL.revokeObjectURL(slot.preview);
+		});
+		photoSlots.fill(null);
+		this.render();
+	},
 
-			deleteChildNodes(item);
-			item.innerHTML = `<img src="${arr[index]}" width="70" height="70">`;
-			item.setAttribute('data-action', 'removePhoto');
-		})
+	render() {
+		allBut_addPhoto.forEach((button, index) => {
+			deleteChildNodes(button);
+			const slot = photoSlots[index];
+			if (slot) {
+				const image = document.createElement('img');
+				image.src = slot.preview || slot.src;
+				image.width = 70;
+				image.height = 70;
+				image.alt = `Фото товара ${index + 1}`;
+				button.appendChild(image);
+				button.dataset.action = 'removePhoto';
+			} else {
+				button.textContent = String(index + 1);
+				button.dataset.action = 'appendPhoto';
+			}
+		});
 	},
 
 	findEmptyButton() {
@@ -223,58 +247,35 @@ let blockPhoto = {
 	checkPressButton() {
 
 		if (Number(this.pressButton.dataset.numberbutton) != this.indexButton) {
-			showModalWindow(`Будь ласка, <br>заповніть ${this.indexButton} поле.`);
+			showModalWindow(`Будь ласка,<br>вставте зображення<br>товару в ${this.indexButton} поле.`);
 		} else {
 			appendPhoto.click();
 		}
 	},
 
-	createFormData() {
-		let formData = new FormData();
-
-		if (this.pressButton.dataset.action == 'appendPhoto') {
-			formData.append('action', this.pressButton.dataset.action);
-			formData.append('numBut', this.pressButton.dataset.numberbutton);
-			formData.append('photo', appendPhoto.files[0]);
-		} else if (this.pressButton.dataset.action == 'removePhoto') {
-			formData.append('action', this.pressButton.dataset.action);
-			formData.append('numBut', this.pressButton.dataset.numberbutton);
-		} else {
-			formData.append('action', 'removeTempData');
-			formData.append('status', this.pressButton.dataset.statusWindow);
-			formData.append('article', changeAdvert.data.article);
-		}
-
-		console.log('Data for server:');
-		for (let [nameProperty, valueProperty] of formData) {
-			console.log(`${nameProperty}: ${valueProperty}`);
-		}
-
-		this.sendPhoto(formData);
+	selectFile() {
+		const file = appendPhoto.files[0];
 		appendPhoto.value = '';
-	},
+		if (!file) return;
 
-	async sendPhoto(formData) {
-		let response = await fetch('../php/appendGoods.php', {
-			method: 'POST',
-			body: formData
-		});
-
-		if (response.ok) { //проверяем статус ответа сервера
-			let answerServer = await response.json(); //получаем тело ответа
-			console.log(answerServer)
-			answerServer.forEach((item, index) => {
-				// deleteChildNodes(allBut_addPhoto[index]);//cleaning tag fieldset
-				
-				if (item) {
-					allBut_addPhoto[index].innerHTML = `<img src="${item}" width="70" height="70">`;
-					allBut_addPhoto[index].setAttribute('data-action', 'removePhoto');
-				} else {
-					allBut_addPhoto[index].textContent = index + 1;
-					allBut_addPhoto[index].setAttribute('data-action', 'appendPhoto');
-				}
-			});
+		if (!file.type.startsWith('image/')) {
+			showModalWindow('Оберіть файл зображення.');
+			return;
 		}
+		if (file.size > 10 * 1024 * 1024) {
+			showModalWindow('Розмір одного<br>зображення не повинен<br>перевищувати 10 МБ.');
+			return;
+		}
+
+		const slotIndex = this.indexButton - 1;
+		if (slotIndex < 0 || slotIndex >= photoSlots.length || photoSlots[slotIndex]) return;
+
+		photoSlots[slotIndex] = {
+			file,
+			index: slotIndex,
+			preview: URL.createObjectURL(file)
+		};
+		this.render();
 	}
 };
 
@@ -293,15 +294,7 @@ async function sendAd (formData) {
 
 		if (answerServer.status == 'success') {
 			clearFieldsForm(form_newAd);
-
-			for (let item of allBut_addPhoto) {
-
-				if (item.firstElementChild) {
-					deleteChildNodes(item);//cleaning tag fieldset
-					item.textContent = item.dataset.numberbutton;
-					item.dataset.action = 'appendPhoto';
-				}
-			}
+			blockPhoto.clear();
 
 			deleteChildNodes(containerActiveAds, containerInactiveAds);
 
@@ -322,7 +315,7 @@ async function sendAd (formData) {
 						deleteChildNodes(window_mainContent);
 						answerServer.topGoods.forEach(item => {
 							window_mainContent.insertAdjacentHTML('beforeend', 
-								`<div class='card'>
+								`<div class='card' data-article="${item.article}">
 									<img src='${item.src}' width='230' height='230'>
 									<p class="card__name">${item.title}</p>
 									<p class="card__code">Код товара: <span class="code-number">${item.article}</span></p>
@@ -331,16 +324,18 @@ async function sendAd (formData) {
 						});
 					}
 				}
-				showModalWindow('Оголошення успішно додано.');
+				showModalWindow('Оголошення успішно<br>додано.');
 				
 			} else {
 				closeWindow(window_newAdvert);
 				openWindow(window_userAds);
-				showModalWindow('Оголошення успішно змінено.');
-				let parent = panelControl.pressedButton.closest('.hat_ads');
-				parent.classList.contains('active_ads')?
-				inputHatActiveAds.checked = false:
-				inputHatInactiveAds.checked = false;
+				showModalWindow('Оголошення успішно<br>змінено.');
+				let parent = panelControl.pressedButton?.closest('.active_ads, .inactive_ads');
+				if (parent?.classList.contains('active_ads')) {
+					if (inputHatActiveAds) inputHatActiveAds.checked = false;
+				} else if (parent?.classList.contains('inactive_ads')) {
+					if (inputHatInactiveAds) inputHatInactiveAds.checked = false;
+				}
 				changeAdvert.changeViewWindow();
 				
 				if ( window_mainContent.classList.contains('top-card') ) {
@@ -394,14 +389,7 @@ if (but_crossNewAd) {
 		closeWindow(window_newAdvert);//The function is in the file authorization.js
 		openWindow(window_mainContent);//The function is in the file authorization.js
 		clearFieldsForm(form_newAd);//The function is in the file javascript.js
-
-		for (let elem of allBut_addPhoto) {
-			if (elem.firstElementChild) {
-				blockPhoto.pressButton = this;
-				blockPhoto.createFormData();
-				break;
-			}
-		}
+		blockPhoto.clear();
 
 		if (this.dataset.statusWindow == 'updateAdvert') changeAdvert.changeViewWindow();
 	}
@@ -410,19 +398,24 @@ if (but_crossNewAd) {
 allBut_addPhoto.forEach(item => {
 	item.onclick = e => {
 		e.preventDefault();
-		
-		if (e.target.tagName == 'BUTTON') {
-			blockPhoto.pressButton = e.target;
-			blockPhoto.findEmptyButton();
-		} else {
-			blockPhoto.pressButton = e.target.parentElement;
-			blockPhoto.createFormData();
+		const button = e.currentTarget;
+		const slotIndex = Number(button.dataset.numberbutton) - 1;
+
+		if (photoSlots[slotIndex]) {
+			if (photoSlots[slotIndex].preview) URL.revokeObjectURL(photoSlots[slotIndex].preview);
+			photoSlots[slotIndex] = null;
+			blockPhoto.render();
+			return;
 		}
+
+		blockPhoto.pressButton = button;
+		blockPhoto.findEmptyButton();
 	};
 });
 
 if (appendPhoto) {
-	appendPhoto.onchange = () => blockPhoto.createFormData();
+	appendPhoto.accept = 'image/*';
+	appendPhoto.onchange = () => blockPhoto.selectFile();
 }
 
 if (window_newAdvert) {

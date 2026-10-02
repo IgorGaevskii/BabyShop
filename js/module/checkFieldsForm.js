@@ -1,7 +1,7 @@
 import createElemError from "./createElemError.js";
 import showModalWindow from "./showModalWindow.js";
 
-export default function checkFieldsForm(allFieldsForm) {
+export default function checkelemsForm(allElementsForm) {
 	const obj = {
 		nameError: {
 			one: 'Перевірте правильність введення Email та пароля.',
@@ -30,12 +30,12 @@ export default function checkFieldsForm(allFieldsForm) {
 		}
 	};
 
-	function checkNumberSymbol(valueFieldPassword) {
+	function checkNumberSymbol(valueelemPassword) {
 		let stringSymbol = 0;
 		let numberSymbol = 0;
 
-		for (let i = 0; i < valueFieldPassword.length; i++) {
-			let codeSymbolUTF = valueFieldPassword.codePointAt(i);
+		for (let i = 0; i < valueelemPassword.length; i++) {
+			let codeSymbolUTF = valueelemPassword.codePointAt(i);
 
 			if (codeSymbolUTF > 64 && codeSymbolUTF < 91) {
 				stringSymbol++;
@@ -49,42 +49,42 @@ export default function checkFieldsForm(allFieldsForm) {
 		return (stringSymbol >= 2 && numberSymbol >= 2)? 0: 1;
 	}
 
-	function checkValidData(field) {
+	function checkValidData(elem) {
 		//Проверка валидности email
-		if (field.name == 'email') {
-			let email = field.value;
+		if (elem.name == 'email') {
+			let email = elem.value;
 
 			if  ( !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email) ) {
-				return field.closest('#authorization')? obj.nameError.one: obj.nameError.two;
+				return elem.closest('#authorization')? obj.nameError.one: obj.nameError.two;
 			}
 
-		} else if (field.name == 'password_user') {
+		} else if (elem.name == 'password_user') {
 			//Проверка валидности password
-			let valueFieldPassword = field.value;
+			let valueelemPassword = elem.value;
 
-			if (valueFieldPassword.length < 8 || valueFieldPassword.length > 24) {
-				return field.closest('#authorization')? obj.nameError.one: obj.nameError.three;
-			} else if ( checkNumberSymbol(valueFieldPassword) ) {
-				return field.closest('#authorization')? obj.nameError.one: obj.nameError.four;
+			if (valueelemPassword.length < 8 || valueelemPassword.length > 24) {
+				return elem.closest('#authorization')? obj.nameError.one: obj.nameError.three;
+			} else if ( checkNumberSymbol(valueelemPassword) ) {
+				return elem.closest('#authorization')? obj.nameError.one: obj.nameError.four;
 			}
 
-		} else if (field.name == 'repeatPassword') {
-			let form = field.form;
-			let valueFieldPassword = form.querySelector("input[name='password_user']").value;
+		} else if (elem.name == 'repeatPassword') {
+			let form = elem.form;
+			let valueelemPassword = form.querySelector("input[name='password_user']").value;
 
-			if (field.value !=  valueFieldPassword) {
+			if (elem.value !=  valueelemPassword) {
 				return obj.nameError.five;
 			}
 
-		} else if (field.name == 'consent' && !field.checked) {
+		} else if (elem.name == 'consent' && !elem.checked) {
 			return obj.nameError.nine;
 
-		} else if (field.name == 'first_name' || field.name == 'surname' || field.name == 'region' || field.name == 'district' || field.name == 'city') {
-			let symbol = field.value[0];
+		} else if (elem.name == 'first_name' || elem.name == 'surname' || elem.name == 'region' || elem.name == 'district' || elem.name == 'city') {
+			let symbol = elem.value[0];
 
 			if (!/^[А-ЩЬЮЯЄІЇҐ]+$/.test(symbol)) {
 
-				switch(field.name) {
+				switch(elem.name) {
 					case 'first_name':
 						return obj.nameError.six;
 						break;
@@ -103,42 +103,46 @@ export default function checkFieldsForm(allFieldsForm) {
 				}
 			}
 
-		} else if (field.name == 'phone') {
-			let valueField = field.value;
+		} else if (elem.name == 'phone') {
+			let valueelem = elem.value;
 
-			if (valueField.length != 18) {
+			if (valueelem.length != 18) {
 				return obj.nameError.eight;
 			}
 		}
 	}
 
-	for (let field of allFieldsForm) {
-		obj[field.name] = {};
+	for (let i = 0; i < allElementsForm.length; i++) {
+		let elem = allElementsForm[i];
 
-		if (field.name != 'user-avatar') {
+		if (elem.tagName === 'BUTTON' || elem.tagName === 'FIELDSET') continue;
+
+		obj[elem.name] = {};
+
+		if (elem.name != 'user-avatar') {
 			
-			if (!field.value) {
-				obj[field.name].empty = true;
+			if (!elem.value) {
+				obj[elem.name].empty = true;
 
-				if ( !field.closest('#authorization') ) createElemError(field, 'Введите пожалуйста данные');
+				if ( !elem.closest('#authorization') ) createElemError(elem, 'Введите пожалуйста данные');
 
 			} else {
-				obj[field.name].empty = false;
-				let answer = checkValidData(field); //Check validation of entered data
+				obj[elem.name].empty = false;
+				let answer = checkValidData(elem); //Check validation of entered data
 
 				if ( !Boolean(answer) ) {
-					obj[field.name].valid = true;
-				} else if ( field.closest('#authorization') ) {
+					obj[elem.name].valid = true;
+				} else if ( elem.closest('#authorization') ) {
 					showModalWindow(answer);
 				} else {
-					obj[field.name].valid = false;
-					createElemError(field, answer);
+					obj[elem.name].valid = false;
+					createElemError(elem, answer);
 				}
 			}
 
 		} else {
-			obj[field.name].empty = false;
-			obj[field.name].valid = true;
+			obj[elem.name].empty = false;
+			obj[elem.name].valid = true;
 		}
 	}
 

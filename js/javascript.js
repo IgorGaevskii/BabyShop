@@ -43,16 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	if ( (sessionStorage.getItem('advert') || sessionStorage.getItem('trading') || localStorage.getItem('chat') ) && !interval ) startSetInterval(obj_window_chat.data_for_server);
 });
 
-window.addEventListener("unload", () => {
-
-	if ( !window_newAd.classList.contains('hide') ) {
-		let formData = new FormData();
-		formData.append('idUser', JSON.parse(sessionStorage.getItem('user')).id);
-		formData.append('action', 'pageReload');
-		navigator.sendBeacon('../php/appendGoods.php', formData);
-	}
-});
-
 elem_topCard.onclick = (event) => {
 
 	if ( event.target.closest('.card') ) {

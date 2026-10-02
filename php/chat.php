@@ -28,7 +28,6 @@
 
 	$arr_temp = [];
 	$sql = "SELECT DISTINCT article FROM chat WHERE (id_seller = $id_user and seller_token = 'show') OR (id_buyer = $id_user and buyer_token = 'show')";
-	// $sql = "SELECT DISTINCT chat.article FROM chat JOIN product ON product.article = chat.article WHERE (chat.to_whom = '$id_user' OR chat.from_whom = '$id_user') AND product.display != 'hide'";
 	$response = mysqli_query($conn, $sql);
 
 	while ( [$article_table_chat] = mysqli_fetch_row($response) ) {

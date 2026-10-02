@@ -3,6 +3,8 @@ import checkSymbol from "./module/checkSymbol.js";
 import checkFieldsForm from "./module/checkFieldsForm.js";
 import {modalWindow} from "./module/open&closeWindow.js";
 import deleteChildNodes from "./module/deleteChildNodes.js";
+import showModalWindow from "./module/showModalWindow.js";
+import collectDataForServer from "/js/module/collectDataForServer.js";
 
 const form = document.forms.registrationMoveTwo,
 	input_name = form.elements.first_name,
@@ -11,7 +13,6 @@ const form = document.forms.registrationMoveTwo,
 	input_region = form.elements.region,
 	input_district = form.elements.district,
 	input_city = form.elements.city,
-	elem_slider = form.querySelector('.slider'),
 	elem_inputFile = form.querySelector('.input-file'),
 	elem_nameFile = form.querySelector('span'),
 	elem_areaChooseAvatar = form.querySelector('.сhoose-avatar'),
@@ -20,26 +21,23 @@ const form = document.forms.registrationMoveTwo,
 	img_avatarStep4 = fieldset_checkData.querySelector('img'),
 	p_fullName = form.querySelector('.full-name'),
 	btn_chooseAvatar = form.querySelector('.btn-choose-avatar'),
-	but_submit = form.querySelector('.but-submit'),
-	window_popup = document.querySelector('.popup'),
-	message_popup = window_popup.querySelector('.message'),
-	but_popup = window_popup.querySelector('.but-window');
+	but_submit = form.querySelector('.but-submit');
 
 const slider = {
 	moveSlider: 0,
 
 	moveSliderLeft() {
 		this.moveSlider -= 100;
-		elem_slider.style.left = this.moveSlider + '%';
+		form.style.left = this.moveSlider + '%';
 	},
 
 	moveSliderRight() {
 		this.moveSlider += 100;
-		elem_slider.style.left = this.moveSlider + '%';
+		form.style.left = this.moveSlider + '%';
 	},
 
 	getAllFieldsPage(elem) {
-		let parentElem = elem.closest('.page-slider');
+		let parentElem = elem.closest('.form-page');
 		let allInputPage = parentElem.querySelectorAll('input');
 		return allInputPage;
 	},
@@ -303,47 +301,10 @@ input_city.addEventListener('input', changeArea);
 // --- 2. ЛОГИКА ОТПРАВКИ ДАННЫХ (КНОПКА "ВІДПРАВИТИ") ---
 but_submit.onclick = async function(event) {
 	event.preventDefault();
-
-	const urlParams = new URLSearchParams(window.location.search);
-	const token = urlParams.get('token'); // "admin"
-
-	const formData = new FormData(form);
-	formData.append('token', token);
-
-	// Добавляем файл аватара (если он был выбран)
-	if (elem_inputFile.files[0]) {
-		formData.append('user_avatar', elem_inputFile.files[0]);
-	}
-
-	try {
-        let response = await fetch('/php/registration user move two.php', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (response.ok) {
-            let result = await response.json();
-
-            if (result.status === 'success') {
-                // Если сервер вернул новый путь к фото (с токеном)
-                if (result.src) {
-                    const cacheBuster = "?t=" + new Date().getTime();
-                    img_avatarStep3.src = result.src + cacheBuster;
-                    img_avatarStep4.src = result.src + cacheBuster;
-                }
-
-                message_popup.textContent = "Регистрация успешно завершена!";
-                modalWindow.open = window_popup;
-            } else {
-                alert("Ошибка: " + (result.error || result.problem));
-            }
-        }
-    } catch (err) {
-        console.error("Ошибка при отправке формы:", err);
-    }
+	collectDataForServer(form);
 };
 
-btn_chooseAvatar.addEventListener('click', () => {
+btn_chooseAvatar.addEventListener('click', event => {
 	event.preventDefault();
 	removeElementError(elem_areaChooseAvatar);
 	elem_inputFile.click();
@@ -353,6 +314,7 @@ btn_chooseAvatar.addEventListener('click', () => {
 // --- 1. ЛОГИКА ВЫБОРА ФОТО (ПРЕВЬЮ) ---
 elem_inputFile.onchange = function() {
     const file = this.files[0];
+
     if (file) {
         // Создаем локальную ссылку для мгновенного отображения (без сервера)
         const localUrl = URL.createObjectURL(file);
